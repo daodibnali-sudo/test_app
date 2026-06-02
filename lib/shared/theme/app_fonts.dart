@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_app/shared/theme/app_colors.dart';
 
 abstract final class AppFonts {
   static const String inter = 'Inter';
@@ -14,6 +15,7 @@ abstract final class AppTextStyles {
   );
 
   static const TextStyle heading = TextStyle(
+    color: AppColors.textPrimary,
     fontFamily: AppFonts.alata,
     fontSize: 28,
     fontWeight: FontWeight.w400,
@@ -32,7 +34,8 @@ abstract final class AppTextStyles {
   );
 
   static const TextStyle label = TextStyle(
-    fontFamily: AppFonts.inter,
+    color: AppColors.textSecondary,
+    fontFamily: AppFonts.alata,
     fontSize: 13,
     fontWeight: FontWeight.w500,
   );
