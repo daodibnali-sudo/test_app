@@ -22,8 +22,9 @@ abstract final class AppTextStyles {
   );
 
   static const TextStyle title = TextStyle(
+    color: AppColors.textSecondary,
     fontFamily: AppFonts.inter,
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: FontWeight.w600,
   );
 

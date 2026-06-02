@@ -16,29 +16,26 @@ class HomePage extends StatelessWidget {
       backgroundColor: AppColors.blackBg,
       appBar: AppBar(
         backgroundColor: AppColors.blackBg,
-        title: Row(
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.menu, color: AppColors.textPrimary),
-            ),
-            const Spacer(),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.notifications_outlined,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.account_circle_outlined,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ],
+        leading: IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.menu, color: AppColors.textPrimary),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(
+              Icons.notifications_outlined,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: Icon(
+              Icons.account_circle_outlined,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Divider(
@@ -48,6 +45,7 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
+
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: Container(
@@ -58,10 +56,92 @@ class HomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Align(alignment: Alignment.topRight, child: weightBadge()),
-              const SizedBox(height: 12),
               Text('Hey, $userName 🥊🔥', style: AppTextStyles.heading),
+              Text(
+                'Ready to push your limits today?',
+                style: AppTextStyles.label,
+              ),
+              const SizedBox(height: 20),
+              Text('Quick Settings workouts:', style: AppTextStyles.title),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 110,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _quickWorkoutCard(
+                      icon: Icons.sports_martial_arts_outlined,
+                      title: 'Boxing',
+                      subtitle: '3 x 3 min',
+                    ),
+                    _quickWorkoutCard(
+                      icon: Icons.fitness_center,
+                      title: 'Strength',
+                      subtitle: '5 rounds',
+                    ),
+                    _quickWorkoutCard(
+                      icon: Icons.flash_on,
+                      title: 'HIIT',
+                      subtitle: '12 min',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              _setNewTimerButton(),
+            ], //children
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _quickWorkoutCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Container(
+      width: 145,
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.blackSurface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.cyanDeep.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Icon(icon, color: AppColors.cyanLight, size: 26),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: AppTextStyles.title),
+              const SizedBox(height: 4),
+              Text(subtitle, style: AppTextStyles.label),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _setNewTimerButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton.icon(
+        onPressed: () {},
+        icon: const Icon(Icons.add),
+        label: const Text('Set new timer', style: AppTextStyles.title,),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.blackSurface,
+          foregroundColor: AppColors.cyanLight,
+          side: BorderSide(color: AppColors.cyanDeep, width: 1.2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          textStyle: AppTextStyles.heading,
         ),
       ),
     );
