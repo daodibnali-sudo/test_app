@@ -1,115 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/features/timer/formatters/timer_formatter.dart';
+import 'package:test_app/features/timer/pages/timer_run_page.dart';
+import 'package:test_app/features/timer/providers/timer_provider.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
+import 'package:test_app/shared/theme/app_fonts.dart';
+import 'package:test_app/widgets/app_bar_timer.dart';
+import 'package:test_app/widgets/timer_setting_widget.dart';
+//import 'package:test_app/features/timer/providers/timer_provider.dart';
 
-class TimerSetPage extends StatefulWidget {
+class TimerSetPage extends ConsumerWidget {
   const TimerSetPage({super.key});
 
   @override
-  State<TimerSetPage> createState() => _TimerSetPageState();
-}
-
-class _TimerSetPageState extends State<TimerSetPage> {
-  int minutes = 3;
-  int seconds = 0;
-
-  void onPlus() {
-    setState(() {
-      if (minutes == 0) {
-        seconds += 10;
-      } else {
-        seconds += 30;
-      }
-
-      if (seconds >= 60) {
-        minutes++;
-        seconds -= 60;
-      }
-    });
-  }
-
-  void onMinus() {
-    setState(() {
-      if (minutes == 0 && seconds == 0) {
-        return;
-      } else if (minutes == 0 || (minutes == 1 && seconds == 0)) {
-        seconds -= 10;
-      } else {
-        seconds -= 30;
-      }
-
-      if (minutes > 0 && seconds < 0) {
-        minutes--;
-        seconds += 60;
-      }
-
-      if (minutes == 0 && seconds < 0) {
-        seconds = 0;
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final timer = ref.watch(timerProvider);
+    final timerNotifier = ref.read(timerProvider.notifier);
     return Scaffold(
       backgroundColor: AppColors.blackBg,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text(
-          'Timer Boxing app',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            color: Colors.white,
-            height: 1,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 30),
-            child: Text(
-              'WORLDS NO.1 BOXING TIMER',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
+      appBar: TimerAppBar(),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 25, right: 10),
+          child: Column(
             children: [
-              Text(
-                '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-                style: const TextStyle(
-                  fontSize: 80,
-                  color: Colors.white,
+              Text('Set new timer', style: AppTextStyles.heading),
+              SizedBox(height: 20),
+              TimeSettingRow(
+                value: formatTime(timer.workSeconds),
+                label: 'Work',
+                onMinus: timerNotifier.subtractWorkTime,
+                onPlus: timerNotifier.addWorkTime,
+              ),
+              TimeSettingRow(
+                value: formatTime(timer.restSeconds),
+                label: 'Rest',
+                onMinus: timerNotifier.subtractRestTime,
+                onPlus: timerNotifier.addRestTime,
+              ),
+              TimeSettingRow(
+                value: timer.rounds.toString(),
+                label: 'Rounds',
+                onMinus: timerNotifier.subtractRound,
+                onPlus: timerNotifier.addRound,
+              ),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: AppColors.blackSurface,
+                  foregroundColor: AppColors.textPrimary,
+                  side: const BorderSide(color: AppColors.cyanDeep, width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
                 ),
-              ),
-
-              IconButton(
-                onPressed: onMinus,
-                icon: const Icon(Icons.remove),
-                iconSize: 52,
-                color: Colors.white,
-                highlightColor: Colors.deepOrangeAccent,
-              ),
-
-              IconButton(
-                onPressed: onPlus,
-                icon: const Icon(Icons.add),
-                iconSize: 52,
-                color: Colors.white,
-                highlightColor: Colors.greenAccent,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TimerRunPage()),
+                  );
+                },
+                child: Text('START'),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,0 +1,9 @@
+todo -make the border of widget badge with color: succeess || warning || error,
+as you cut your weight
+
+todo: TimerRunPage -progressbar
+                    pause:resume reset
+                    announcements
+
+
+

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
 
-class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MyAppBar({super.key});
+class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const TimerAppBar({super.key});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -12,23 +12,16 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: AppColors.blackBg,
       leading: IconButton(
-        onPressed: () {},
-        icon: Icon(Icons.menu, color: AppColors.textPrimary),
+        onPressed: () => Navigator.pop(context),
+        icon: const Icon(
+          Icons.arrow_back_ios_new_outlined,
+          color: AppColors.textPrimary,
+        ),
       ),
       actions: [
         IconButton(
           onPressed: () {},
-          icon: Icon(
-            Icons.notifications_outlined,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        IconButton(
-          onPressed: () {},
-          icon: Icon(
-            Icons.account_circle_outlined,
-            color: AppColors.textPrimary,
-          ),
+          icon: Icon(Icons.settings, color: AppColors.textPrimary),
         ),
       ],
       bottom: PreferredSize(
