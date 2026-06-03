@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
 import 'package:test_app/shared/theme/app_fonts.dart';
+import 'package:test_app/widgets/app_bar.dart';
 import 'package:test_app/widgets/weight_badge.dart';
-//import 'timer_set_page.dart';
+import 'timer_set_page.dart';
 
 final double userWeight = 66.4;
 final String userName = 'David';
@@ -14,38 +15,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.blackBg,
-      appBar: AppBar(
-        backgroundColor: AppColors.blackBg,
-        leading: IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.menu, color: AppColors.textPrimary),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.notifications_outlined,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.account_circle_outlined,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.cyanDeep.withValues(alpha: 0.45),
-          ),
-        ),
-      ),
-
+      appBar: MyAppBar(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: Container(
@@ -88,7 +58,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _setNewTimerButton(),
+              _setNewTimerButton(context),
             ], //children
           ),
         ),
@@ -128,14 +98,18 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _setNewTimerButton() {
+  Widget _setNewTimerButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const TimerSetPage()));
+        },
         icon: const Icon(Icons.add),
-        label: const Text('Set new timer', style: AppTextStyles.title,),
+        label: const Text('Set new timer', style: AppTextStyles.title),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.blackSurface,
           foregroundColor: AppColors.cyanLight,
