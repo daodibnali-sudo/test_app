@@ -34,9 +34,9 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
         child: Divider(
-          height: 1,
-          thickness: 1,
-          color: AppColors.cyanDeep.withValues(alpha: 0.45),
+          height: 2,
+          thickness: 2,
+          color: AppColors.cyanDeep.withAlpha(150),
         ),
       ),
     );

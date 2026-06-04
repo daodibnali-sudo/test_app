@@ -1,9 +1,51 @@
+Making My app better;)
+
 todo -make the border of widget badge with color: succeess || warning || error,
 as you cut your weight
+todo: Global -Navigation animation
+             -SetPreset
+             -Store Presets
+             -
+             -widget AppButton (making able to add icons)
+             -
+             -ads
+             -pro version
+
+todo: HomePage: -Set new timer button
+                -streaks
+                -recent timer setting
+                -workout hours
+                -daily logs
+                quick workout presets (adding ,editing, deleting)
+
+todo: TimerSetPage -
+
 
 todo: TimerRunPage -progressbar
-                    pause:resume reset
-                    announcements
+                   -buttons
+                   -announcements
+                   -sounds
 
+Priority:
 
+1. AppButton with optional icon
+2. TimerRunPage:
+   - progressbar
+   - start / pause / reset buttons
+   - sounds
+   - announcements
+
+3. SetPreset / StorePresets
+4. HomePage:
+   - Set new timer button
+   - recent timer setting
+   - quick workout presets
+
+5. Later:
+   - streaks
+   - workout hours
+   - daily logs
+   - ads
+   - pro version
+   - navigation animation
 

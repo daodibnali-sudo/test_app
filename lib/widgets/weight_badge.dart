@@ -9,7 +9,7 @@ Widget weightBadge() {
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: AppColors.cyanDeep.withAlpha(150)),
+      border: Border.all(color: AppColors.cyanLight.withAlpha(150)),
     ),
     child: Text('$userWeight kg', style: AppTextStyles.label),
   );

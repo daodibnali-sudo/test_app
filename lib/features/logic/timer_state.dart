@@ -6,6 +6,11 @@ class TimerState {
   final int currentRound;
   final bool isRunning;
   final bool isWork;
+  final bool tenSecAnnouncement;
+  final bool thirtySecAnnouncement;
+  final bool minuteAnnouncement;
+
+  int get totalSeconds => (workSeconds + restSeconds) * rounds;
 
   const TimerState({
     required this.workSeconds,
@@ -15,6 +20,9 @@ class TimerState {
     required this.currentRound,
     required this.isRunning,
     required this.isWork,
+    required this.tenSecAnnouncement,
+    required this.thirtySecAnnouncement,
+    required this.minuteAnnouncement,
   });
 
   factory TimerState.initial() {
@@ -26,6 +34,9 @@ class TimerState {
       currentRound: 1,
       isRunning: false,
       isWork: true,
+      tenSecAnnouncement: true,
+      thirtySecAnnouncement: true,
+      minuteAnnouncement: true,
     );
   }
 
@@ -37,6 +48,9 @@ class TimerState {
     int? currentRound,
     bool? isRunning,
     bool? isWork,
+    bool? tenSecAnnouncement,
+    bool? thirtySecAnnouncement,
+    bool? minuteAnnouncement,
   }) {
     return TimerState(
       workSeconds: workSeconds ?? this.workSeconds,
@@ -46,6 +60,10 @@ class TimerState {
       currentRound: currentRound ?? this.currentRound,
       isRunning: isRunning ?? this.isRunning,
       isWork: isWork ?? this.isWork,
+      tenSecAnnouncement: tenSecAnnouncement ?? this.tenSecAnnouncement,
+      thirtySecAnnouncement:
+          thirtySecAnnouncement ?? this.thirtySecAnnouncement,
+      minuteAnnouncement: minuteAnnouncement ?? this.minuteAnnouncement,
     );
   }
 }

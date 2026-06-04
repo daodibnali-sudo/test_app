@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
+import 'package:test_app/shared/theme/app_fonts.dart';
 
 class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
   const TimerAppBar({super.key});
@@ -17,6 +18,10 @@ class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
           Icons.arrow_back_ios_new_outlined,
           color: AppColors.textPrimary,
         ),
+      ),
+      title: Text(
+        'Set new timer',
+        style: AppTextStyles.heading.copyWith(fontSize: 24),
       ),
       actions: [
         IconButton(

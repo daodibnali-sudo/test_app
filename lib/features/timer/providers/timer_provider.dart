@@ -18,6 +18,18 @@ class TimerNotifier extends Notifier<TimerState> {
     return TimerState.initial();
   }
 
+  void toggleTenSecAnnouncement(bool value) {
+    state = state.copyWith(tenSecAnnouncement: value);
+  }
+
+  void toggleThirtySecAnnouncement(bool value) {
+    state = state.copyWith(thirtySecAnnouncement: value);
+  }
+
+  void toggleMinuteAnnouncement(bool value) {
+    state = state.copyWith(minuteAnnouncement: value);
+  }
+
   void addWorkTime() {
     final increment = state.workSeconds < 60 ? 10 : 30;
     final newSeconds = state.workSeconds + increment;

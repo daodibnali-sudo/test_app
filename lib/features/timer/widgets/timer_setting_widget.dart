@@ -27,9 +27,9 @@ class TimeSettingRow extends StatelessWidget {
               width: 165,
               child: Text(
                 value,
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.heading.copyWith(
                   color: AppColors.textPrimary,
-                  fontSize: 80,
+                  fontSize: 60,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
@@ -47,15 +47,18 @@ class TimeSettingRow extends StatelessWidget {
 
         IconButton(
           onPressed: onMinus,
+          highlightColor: AppColors.error,
           icon: const Icon(
             Icons.remove,
             color: AppColors.textPrimary,
-            size: 50,
+            size: 45,
           ),
         ),
         IconButton(
+          
           onPressed: onPlus,
-          icon: const Icon(Icons.add, color: AppColors.textPrimary, size: 50),
+          highlightColor: AppColors.cyanLight,
+          icon: const Icon(Icons.add, color: AppColors.textPrimary, size: 45),
         ),
       ],
     );

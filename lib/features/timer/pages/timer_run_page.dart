@@ -4,7 +4,7 @@ import 'package:test_app/features/timer/formatters/timer_formatter.dart';
 import 'package:test_app/features/timer/providers/timer_provider.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
 import 'package:test_app/shared/theme/app_fonts.dart';
-import 'package:test_app/widgets/app_bar_timer.dart';
+import 'package:test_app/features/timer/widgets/app_bar_timer.dart';
 
 class TimerRunPage extends ConsumerWidget {
   const TimerRunPage({super.key});
