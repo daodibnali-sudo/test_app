@@ -42,10 +42,21 @@ Priority:
    - quick workout presets
 
 5. Later:
+   -learn local storage
+   -settings
+   -profile
+   -upcoming fights
+   -weight cut stats
+   -onLaunch Logo
    - streaks
    - workout hours
    - daily logs
+   -welcomePages
    - ads
    - pro version
    - navigation animation
+
+6. Very very Later:
+   -Weight cut programs
+   -
 
