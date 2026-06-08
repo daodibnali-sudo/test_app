@@ -60,3 +60,4 @@ Priority:
    -Weight cut programs
    -
 
+Global

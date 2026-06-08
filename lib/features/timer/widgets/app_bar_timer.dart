@@ -34,7 +34,7 @@ class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Divider(
           height: 1,
           thickness: 1,
-          color: AppColors.cyanDeep.withValues(alpha: 0.45),
+          color: AppColors.cyanLight.withAlpha(200),
         ),
       ),
     );

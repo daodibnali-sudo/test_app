@@ -7,11 +7,11 @@ import 'package:test_app/shared/theme/app_colors.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
+     SystemUiOverlayStyle(
       statusBarColor: AppColors.blackBg,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: AppColors.blackBg,
-      systemNavigationBarDividerColor: AppColors.blackBg,
+      systemNavigationBarDividerColor: AppColors.textPrimary,
       systemNavigationBarIconBrightness: Brightness.light,
       systemNavigationBarContrastEnforced: false,
     ),

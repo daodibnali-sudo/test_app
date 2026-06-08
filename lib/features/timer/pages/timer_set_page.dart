@@ -34,15 +34,7 @@ class TimerSetPage extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(15, 0, 15, 20),
           child: Column(
             children: [
-              const SizedBox(height: 16),
-
-              Text(
-                'Total Workout Time: ${formatTime(timer.totalSeconds)}',
-                style: AppTextStyles.heading.copyWith(
-                  fontSize: 25,
-                  color: AppColors.textSecondary,
-                ),
-              ),
+              
 
               const SizedBox(height: 15),
 
@@ -67,11 +59,22 @@ class TimerSetPage extends ConsumerWidget {
                       onMinus: timerNotifier.subtractRound,
                       onPlus: timerNotifier.addRound,
                     ),
+                    Text(
+                'Total Workout Time: ${formatTime(timer.totalSeconds)}',
+                style: AppTextStyles.heading.copyWith(
+                  fontSize: 24,
+                  color: AppColors.textDisabled,
+                ),
+              ),
+
                   ],
                 ),
               ),
 
-              const SizedBox(height: 14),
+              //const SizedBox(height: 10),
+
+              
+              //const SizedBox(height: 10),
 
               OutlinedSection(
                 child: Column(
@@ -109,7 +112,10 @@ class TimerSetPage extends ConsumerWidget {
   children: [
     Expanded(
       child: AppButton(
+        backgroundColor: AppColors.cyanLight,
         text: 'START',
+        leading: Icon(Icons.play_circle_fill),
+        textColor: AppColors.blackSurface,
         onPressed: openTimerRunPage,
       ),
     ),
@@ -118,7 +124,11 @@ class TimerSetPage extends ConsumerWidget {
 
     Expanded(
       child: AppButton(
+        borderColor: AppColors.cyanLight,
         text: 'SAVE',
+        textColor: AppColors.cyanLight,
+        leading: Icon(Icons.save),
+        iconColor: AppColors.cyanLight,
         filled: false,
         onPressed: () {},
       ),

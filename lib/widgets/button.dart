@@ -1,56 +1,147 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
     required this.text,
     required this.onPressed,
+
     this.filled = true,
+
+    this.leading,
+    this.trailing,
+
+    this.height = 56,
+    this.width = double.infinity,
+    this.radius = 16,
+
+    this.backgroundColor,
+    this.borderColor,
+    this.borderWidth = 1,
+
+    this.textColor,
+    this.iconColor,
+
+    this.textStyle,
+    this.textSize,
+    this.fontWeight,
+
+    this.iconSize = 22,
+    this.gap = 8,
+
+    this.padding = const EdgeInsets.symmetric(horizontal: 16),
+
+    this.enabled = true,
   });
 
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
+
   final bool filled;
 
-  static const _textStyle = TextStyle(
-    fontFamily: 'alata',
-    fontWeight: FontWeight.bold,
-    fontSize: 15,
-  );
+  final Widget? leading;
+  final Widget? trailing;
+
+  final double height;
+  final double width;
+  final double radius;
+
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double borderWidth;
+
+  final Color? textColor;
+  final Color? iconColor;
+
+  final TextStyle? textStyle;
+  final double? textSize;
+  final FontWeight? fontWeight;
+
+  final double iconSize;
+  final double gap;
+
+  final EdgeInsetsGeometry padding;
+
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    if (filled) {
-      return FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.cyanLight,
-          foregroundColor: AppColors.blackShadow,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+    final child = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (leading != null) ...[
+          IconTheme(
+            data: IconThemeData(
+              color: iconColor,
+              size: iconSize,
+            ),
+            child: leading!,
           ),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
-        onPressed: onPressed,
-        child: Text(text, style: _textStyle),
-      );
-    }
+          SizedBox(width: gap),
+        ],
 
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        backgroundColor: AppColors.blackSurface,
-        foregroundColor: AppColors.textPrimary,
-        side: const BorderSide(
-          color: AppColors.cyanDeep,
-          width: 2,
+        Text(
+          text,
+          style: textStyle ??
+              TextStyle(
+                color: textColor,
+                fontSize: textSize,
+                fontWeight: fontWeight,
+              ),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+
+        if (trailing != null) ...[
+          SizedBox(width: gap),
+          IconTheme(
+            data: IconThemeData(
+              color: iconColor,
+              size: iconSize,
+            ),
+            child: trailing!,
+          ),
+        ],
+      ],
+    );
+
+    final style = ButtonStyle(
+      backgroundColor: WidgetStatePropertyAll(
+        filled ? backgroundColor : Colors.transparent,
       ),
-      onPressed: onPressed,
-      child: Text(text, style: _textStyle),
+      side: WidgetStatePropertyAll(
+        BorderSide(
+          color: borderColor ?? Colors.transparent,
+          width: borderWidth,
+        ),
+      ),
+      minimumSize: WidgetStatePropertyAll(
+        Size(width, height),
+      ),
+      fixedSize: WidgetStatePropertyAll(
+        Size(width, height),
+      ),
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radius),
+        ),
+      ),
+      padding: WidgetStatePropertyAll(padding),
+    );
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: filled
+          ? FilledButton(
+              style: style,
+              onPressed: enabled ? onPressed : null,
+              child: child,
+            )
+          : OutlinedButton(
+              style: style,
+              onPressed: enabled ? onPressed : null,
+              child: child,
+            ),
     );
   }
 }
