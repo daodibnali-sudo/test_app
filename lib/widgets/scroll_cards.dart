@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class ScrollCard extends StatelessWidget {
   const ScrollCard({
     super.key,

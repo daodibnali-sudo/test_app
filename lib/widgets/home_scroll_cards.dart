@@ -13,7 +13,7 @@ class WorkoutCard extends StatelessWidget {
     this.titleStyle,
     this.subtitleStyle,
   });
-
+  
   final IconData icon;
   final String title;
   final String subtitle;
