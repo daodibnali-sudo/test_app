@@ -68,30 +68,16 @@ class ScrollCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           if (leading != null)
-            SizedBox(
-              width: imageSize,
-              height: imageSize,
-              child: leading,
-            )
+            SizedBox(width: imageSize, height: imageSize, child: leading)
           else if (icon != null)
-            Icon(
-              icon,
-              color: iconColor,
-              size: iconSize,
-            ),
+            Icon(icon, color: iconColor, size: iconSize),
 
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: titleStyle,
-              ),
+              Text(title, style: titleStyle),
               const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: subtitleStyle,
-              ),
+              Text(subtitle, style: subtitleStyle),
             ],
           ),
         ],

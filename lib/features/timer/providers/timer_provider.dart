@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/features/logic/timer_state.dart';
+import 'package:test_app/features/timer/logic/timer_state.dart';
 
 final timerProvider = NotifierProvider<TimerNotifier, TimerState>(
   TimerNotifier.new,
@@ -106,6 +106,21 @@ class TimerNotifier extends Notifier<TimerState> {
       isRunning: false,
       isWork: true,
     );
+  }
+
+  void skip() {
+    if (state.isWork) {
+      state = state.copyWith(
+        isWork: false,
+        remainingSeconds: state.restSeconds,
+      );
+    } else {
+      state = state.copyWith(
+        isWork: true,
+        currentRound: state.currentRound + 1,
+        remainingSeconds: state.workSeconds,
+      );
+    }
   }
 
   void tick() {

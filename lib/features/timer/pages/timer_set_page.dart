@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/features/timer/formatters/timer_formatter.dart';
-import 'package:test_app/features/timer/pages/timer_run_page.dart';
 import 'package:test_app/features/timer/providers/timer_provider.dart';
+import 'package:test_app/router/open_timer.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
 import 'package:test_app/shared/theme/app_fonts.dart';
 import 'package:test_app/features/timer/widgets/announcement_row.dart';
@@ -19,13 +19,6 @@ class TimerSetPage extends ConsumerWidget {
     final timer = ref.watch(timerProvider);
     final timerNotifier = ref.read(timerProvider.notifier);
 
-    void openTimerRunPage() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const TimerRunPage()),
-      );
-    }
-
     return Scaffold(
       backgroundColor: AppColors.blackBg,
       appBar: TimerAppBar(),
@@ -34,8 +27,6 @@ class TimerSetPage extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(15, 0, 15, 20),
           child: Column(
             children: [
-              
-
               const SizedBox(height: 15),
 
               OutlinedSection(
@@ -60,22 +51,19 @@ class TimerSetPage extends ConsumerWidget {
                       onPlus: timerNotifier.addRound,
                     ),
                     Text(
-                'Total Workout Time: ${formatTime(timer.totalSeconds)}',
-                style: AppTextStyles.heading.copyWith(
-                  fontSize: 24,
-                  color: AppColors.textDisabled,
-                ),
-              ),
-
+                      'Total Workout Time: ${formatTime(timer.totalSeconds)}',
+                      style: AppTextStyles.heading.copyWith(
+                        fontSize: 24,
+                        color: AppColors.textDisabled,
+                      ),
+                    ),
                   ],
                 ),
               ),
 
-              //const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-              
               //const SizedBox(height: 10),
-
               OutlinedSection(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +74,7 @@ class TimerSetPage extends ConsumerWidget {
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 5),
                     AnnouncementRow(
                       label: '10s Left',
                       value: timer.tenSecAnnouncement,
@@ -109,32 +97,32 @@ class TimerSetPage extends ConsumerWidget {
               const SizedBox(height: 10),
 
               Row(
-  children: [
-    Expanded(
-      child: AppButton(
-        backgroundColor: AppColors.cyanLight,
-        text: 'START',
-        leading: Icon(Icons.play_circle_fill),
-        textColor: AppColors.blackSurface,
-        onPressed: openTimerRunPage,
-      ),
-    ),
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      backgroundColor: AppColors.cyanLight,
+                      text: 'START',
+                      leading: Icon(Icons.play_circle_fill),
+                      textColor: AppColors.blackSurface,
+                      onPressed: () => openTimerRunPage(context),
+                    ),
+                  ),
 
-    const SizedBox(width: 10),
+                  const SizedBox(width: 10),
 
-    Expanded(
-      child: AppButton(
-        borderColor: AppColors.cyanLight,
-        text: 'SAVE',
-        textColor: AppColors.cyanLight,
-        leading: Icon(Icons.save),
-        iconColor: AppColors.cyanLight,
-        filled: false,
-        onPressed: () {},
-      ),
-    ),
-  ],
-)
+                  Expanded(
+                    child: AppButton(
+                      borderColor: AppColors.cyanLight,
+                      text: 'SAVE',
+                      textColor: AppColors.cyanLight,
+                      leading: Icon(Icons.save),
+                      iconColor: AppColors.cyanLight,
+                      filled: false,
+                      onPressed: () {}, //TODO: save preset
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

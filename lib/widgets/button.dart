@@ -72,10 +72,7 @@ class AppButton extends StatelessWidget {
       children: [
         if (leading != null) ...[
           IconTheme(
-            data: IconThemeData(
-              color: iconColor,
-              size: iconSize,
-            ),
+            data: IconThemeData(color: iconColor, size: iconSize),
             child: leading!,
           ),
           SizedBox(width: gap),
@@ -83,7 +80,8 @@ class AppButton extends StatelessWidget {
 
         Text(
           text,
-          style: textStyle ??
+          style:
+              textStyle ??
               TextStyle(
                 color: textColor,
                 fontSize: textSize,
@@ -94,10 +92,7 @@ class AppButton extends StatelessWidget {
         if (trailing != null) ...[
           SizedBox(width: gap),
           IconTheme(
-            data: IconThemeData(
-              color: iconColor,
-              size: iconSize,
-            ),
+            data: IconThemeData(color: iconColor, size: iconSize),
             child: trailing!,
           ),
         ],
@@ -114,16 +109,10 @@ class AppButton extends StatelessWidget {
           width: borderWidth,
         ),
       ),
-      minimumSize: WidgetStatePropertyAll(
-        Size(width, height),
-      ),
-      fixedSize: WidgetStatePropertyAll(
-        Size(width, height),
-      ),
+      minimumSize: WidgetStatePropertyAll(Size(width, height)),
+      fixedSize: WidgetStatePropertyAll(Size(width, height)),
       shape: WidgetStatePropertyAll(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radius),
-        ),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
       ),
       padding: WidgetStatePropertyAll(padding),
     );

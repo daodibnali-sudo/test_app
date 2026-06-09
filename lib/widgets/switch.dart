@@ -55,10 +55,7 @@ class _ChelnockSwitchState extends State<ChelnockSwitch> {
         duration: const Duration(milliseconds: 180),
         width: trackWidth,
         height: trackHeight,
-        padding: const EdgeInsets.symmetric(
-          vertical: 2.5,
-          horizontal: 2.5,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 2.5),
         decoration: BoxDecoration(
           color: widget.value
               ? const Color(0xFF00D6C9)
@@ -76,7 +73,9 @@ class _ChelnockSwitchState extends State<ChelnockSwitch> {
         child: AnimatedAlign(
           duration: _moveDuration,
           curve: Curves.easeOutCubic,
-          alignment: widget.value ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: widget.value
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
           child: AnimatedScale(
             duration: const Duration(milliseconds: 140),
             curve: Curves.easeOut,
@@ -85,14 +84,8 @@ class _ChelnockSwitchState extends State<ChelnockSwitch> {
               duration: const Duration(milliseconds: 140),
               opacity: _isAnimating ? 0.62 : 1,
               child: _isAnimating
-                  ? _LiquidGlassThumb(
-                      width: thumbWidth,
-                      height: thumbHeight,
-                    )
-                  : _DefaultThumb(
-                      width: thumbWidth,
-                      height: thumbHeight,
-                    ),
+                  ? _LiquidGlassThumb(width: thumbWidth, height: thumbHeight)
+                  : _DefaultThumb(width: thumbWidth, height: thumbHeight),
             ),
           ),
         ),
@@ -102,10 +95,7 @@ class _ChelnockSwitchState extends State<ChelnockSwitch> {
 }
 
 class _DefaultThumb extends StatelessWidget {
-  const _DefaultThumb({
-    required this.width,
-    required this.height,
-  });
+  const _DefaultThumb({required this.width, required this.height});
 
   final double width;
   final double height;
@@ -120,10 +110,7 @@ class _DefaultThumb extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            Colors.white.withValues(alpha: 0.92),
-          ],
+          colors: [Colors.white, Colors.white.withValues(alpha: 0.92)],
         ),
         boxShadow: [
           BoxShadow(
@@ -138,10 +125,7 @@ class _DefaultThumb extends StatelessWidget {
 }
 
 class _LiquidGlassThumb extends StatelessWidget {
-  const _LiquidGlassThumb({
-    required this.width,
-    required this.height,
-  });
+  const _LiquidGlassThumb({required this.width, required this.height});
 
   final double width;
   final double height;
@@ -151,10 +135,7 @@ class _LiquidGlassThumb extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(999),
       child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: 12,
-          sigmaY: 12,
-        ),
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           width: width,
           height: height,
@@ -170,12 +151,7 @@ class _LiquidGlassThumb extends StatelessWidget {
                 Colors.white.withValues(alpha: 0.25),
                 Colors.black.withValues(alpha: 0.10),
               ],
-              stops: const [
-                0.00,
-                0.35,
-                0.75,
-                1.00,
-              ],
+              stops: const [0.00, 0.35, 0.75, 1.00],
             ),
             boxShadow: [
               BoxShadow(

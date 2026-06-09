@@ -29,10 +29,7 @@ class AnnouncementRow extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          ChelnockSwitch(
-            value: value,
-            onChanged: onChanged,
-          ),
+          ChelnockSwitch(value: value, onChanged: onChanged),
         ],
       ),
     );

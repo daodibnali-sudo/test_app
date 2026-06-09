@@ -7,7 +7,7 @@ import 'package:test_app/shared/theme/app_colors.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
-     SystemUiOverlayStyle(
+    SystemUiOverlayStyle(
       statusBarColor: AppColors.blackBg,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: AppColors.blackBg,

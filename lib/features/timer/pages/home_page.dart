@@ -7,11 +7,8 @@ import 'package:test_app/widgets/home_scroll_cards.dart';
 import 'package:test_app/widgets/weight_badge.dart';
 import 'timer_set_page.dart';
 
-
-
 final double userWeight = 66.4;
 final String userName = 'David';
-  
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -46,8 +43,16 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 20),
               Row(
                 children: [
-                  Icon(Icons.flash_on, color: AppColors.cyanLight.withAlpha(200),),
-                  Text('Quick Settings workouts:', style: AppTextStyles.title.copyWith(color: AppColors.cyanLight.withAlpha(200))),
+                  Icon(
+                    Icons.flash_on,
+                    color: AppColors.cyanLight.withAlpha(200),
+                  ),
+                  Text(
+                    'Quick Settings workouts:',
+                    style: AppTextStyles.title.copyWith(
+                      color: AppColors.cyanLight.withAlpha(200),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -64,7 +69,7 @@ class HomePage extends StatelessWidget {
                     ),
                     WorkoutCard(
                       backgroundColor: AppColors.blackSurface,
-                      icon: Icons.fitness_center, 
+                      icon: Icons.fitness_center,
                       titleStyle: TextStyle(color: AppColors.cyanLight),
                       title: 'Strength',
                       subtitle: '5 rounds',
@@ -88,13 +93,13 @@ class HomePage extends StatelessWidget {
                 borderColor: AppColors.cyanDeep.withAlpha(200),
                 filled: false,
                 text: 'Set new timer',
-                
+
                 textColor: AppColors.cyanLight.withAlpha(200),
                 leading: Icon(Icons.add),
-                onPressed: () {openTimerSetPage();},
-
-              )
-              
+                onPressed: () {
+                  openTimerSetPage();
+                },
+              ),
             ], //children
           ),
         ),
@@ -102,4 +107,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-

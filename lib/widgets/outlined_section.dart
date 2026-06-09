@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
 
 class OutlinedSection extends StatelessWidget {
-  const OutlinedSection({
-    super.key,
-    required this.child,
-  });
+  const OutlinedSection({super.key, required this.child});
 
   final Widget child;
 

@@ -9,12 +9,14 @@ class TimerState {
   final bool tenSecAnnouncement;
   final bool thirtySecAnnouncement;
   final bool minuteAnnouncement;
+  final int preparationSeconds;
 
   int get totalSeconds => (workSeconds + restSeconds) * rounds;
 
   const TimerState({
     required this.workSeconds,
     required this.restSeconds,
+    required this.preparationSeconds,
     required this.remainingSeconds,
     required this.rounds,
     required this.currentRound,
@@ -29,6 +31,7 @@ class TimerState {
     return const TimerState(
       workSeconds: 180,
       restSeconds: 60,
+      preparationSeconds: 10,
       remainingSeconds: 180,
       rounds: 3,
       currentRound: 1,
@@ -44,6 +47,7 @@ class TimerState {
     int? workSeconds,
     int? restSeconds,
     int? remainingSeconds,
+    int? preparationSeconds,
     int? rounds,
     int? currentRound,
     bool? isRunning,
@@ -56,6 +60,7 @@ class TimerState {
       workSeconds: workSeconds ?? this.workSeconds,
       restSeconds: restSeconds ?? this.restSeconds,
       remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+      preparationSeconds: preparationSeconds ?? this.preparationSeconds,
       rounds: rounds ?? this.rounds,
       currentRound: currentRound ?? this.currentRound,
       isRunning: isRunning ?? this.isRunning,

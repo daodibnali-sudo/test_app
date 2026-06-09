@@ -13,7 +13,7 @@ class WorkoutCard extends StatelessWidget {
     this.titleStyle,
     this.subtitleStyle,
   });
-  
+
   final IconData icon;
   final String title;
   final String subtitle;
@@ -28,7 +28,10 @@ class WorkoutCard extends StatelessWidget {
       icon: icon,
       title: title,
       subtitle: subtitle,
-      titleStyle: AppTextStyles.body.copyWith(color: AppColors.cyanLight, fontFamily: 'Alata'),
+      titleStyle: AppTextStyles.body.copyWith(
+        color: AppColors.cyanLight,
+        fontFamily: 'Alata',
+      ),
       subtitleStyle: AppTextStyles.label,
       backgroundColor: backgroundColor,
       borderColor: AppColors.cyanDeep.withAlpha(200),
