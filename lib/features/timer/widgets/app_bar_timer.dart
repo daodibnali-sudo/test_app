@@ -3,7 +3,9 @@ import 'package:test_app/shared/theme/app_colors.dart';
 import 'package:test_app/shared/theme/app_fonts.dart';
 
 class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const TimerAppBar({super.key});
+  const TimerAppBar({super.key, this.title = ''});
+
+  final String title;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -19,10 +21,14 @@ class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: AppColors.textPrimary,
         ),
       ),
-      title: Text(
-        'Set new timer',
-        style: AppTextStyles.heading.copyWith(fontSize: 24),
-      ),
+      title: title.isEmpty
+          ? null
+          : Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.heading.copyWith(fontSize: 24),
+            ),
       actions: [
         IconButton(
           onPressed: () {},

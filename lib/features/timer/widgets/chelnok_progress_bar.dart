@@ -1,8 +1,6 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:test_app/features/timer/widgets/timer_display.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
 
 class ChelnokProgressBar extends StatelessWidget {
@@ -17,7 +15,6 @@ class ChelnokProgressBar extends StatelessWidget {
     this.glassColor = const Color(0x22FFFFFF),
     this.borderColor = const Color(0x33FFFFFF),
     this.borderWidth = 1.2,
-    this.blur = 14,
   });
 
   final int remainingMs;
@@ -31,7 +28,6 @@ class ChelnokProgressBar extends StatelessWidget {
   final Color glassColor;
   final Color borderColor;
   final double borderWidth;
-  final double blur;
 
   @override
   Widget build(BuildContext context) {
@@ -39,45 +35,35 @@ class ChelnokProgressBar extends StatelessWidget {
         ? 0.0
         : (remainingMs / totalMs).clamp(0.0, 1.0);
 
-    return SizedBox(
-      width: size,
-      height: size,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: blur,
-            sigmaY: blur,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: glassColor,
-              border: Border.all(
-                color: borderColor,
-                width: borderWidth,
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: progress),
+      duration: const Duration(milliseconds: 110),
+      curve: Curves.linear,
+      builder: (context, animatedProgress, child) {
+        return SizedBox(
+          width: size,
+          height: size,
+          child: RepaintBoundary(
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: glassColor,
+                border: Border.all(color: borderColor, width: borderWidth),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: progressColor.withAlpha(45),
-                  blurRadius: 28,
-                  spreadRadius: 2,
+              child: CustomPaint(
+                painter: _ChelnokProgressPainter(
+                  progress: animatedProgress,
+                  progressColor: progressColor,
+                  trackColor: trackColor,
+                  strokeWidth: strokeWidth,
                 ),
-              ],
-            ),
-            child: CustomPaint(
-              painter: _ChelnokProgressPainter(
-                progress: progress,
-                progressColor: progressColor,
-                trackColor: trackColor,
-                strokeWidth: strokeWidth,
-              ),
-              child: Center(
-                child: TimerDisplay(seconds: remainingMs),
+                child: child,
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
+      child: const SizedBox.expand(),
     );
   }
 }
@@ -100,26 +86,13 @@ class _ChelnokProgressPainter extends CustomPainter {
     final center = size.center(Offset.zero);
     final radius = (size.width - strokeWidth) / 2;
 
-    final rect = Rect.fromCircle(
-      center: center,
-      radius: radius,
-    );
+    final rect = Rect.fromCircle(center: center, radius: radius);
 
     final trackPaint = Paint()
       ..color = trackColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
-
-    final glowPaint = Paint()
-      ..color = progressColor.withAlpha(55)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth + 8
-      ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(
-        BlurStyle.normal,
-        10,
-      );
 
     final progressPaint = Paint()
       ..shader = SweepGradient(
@@ -140,33 +113,14 @@ class _ChelnokProgressPainter extends CustomPainter {
     final sweepAngle = 2 * pi * progress;
 
     canvas.drawCircle(center, radius, trackPaint);
-
-    canvas.drawArc(
-      rect,
-      startAngle,
-      sweepAngle,
-      false,
-      glowPaint,
-    );
-
-    canvas.drawArc(
-      rect,
-      startAngle,
-      sweepAngle,
-      false,
-      progressPaint,
-    );
+    canvas.drawArc(rect, startAngle, sweepAngle, false, progressPaint);
 
     final highlightPaint = Paint()
       ..color = Colors.white.withAlpha(38)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.4;
 
-    canvas.drawCircle(
-      center,
-      radius - strokeWidth,
-      highlightPaint,
-    );
+    canvas.drawCircle(center, radius - strokeWidth, highlightPaint);
   }
 
   @override

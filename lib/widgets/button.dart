@@ -117,20 +117,24 @@ class AppButton extends StatelessWidget {
       padding: WidgetStatePropertyAll(padding),
     );
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: filled
-          ? FilledButton(
-              style: style,
-              onPressed: enabled ? onPressed : null,
-              child: child,
-            )
-          : OutlinedButton(
-              style: style,
-              onPressed: enabled ? onPressed : null,
-              child: child,
-            ),
+    return AnimatedOpacity(
+      opacity: enabled ? 1 : 0.48,
+      duration: const Duration(milliseconds: 150),
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: filled
+            ? FilledButton(
+                style: style,
+                onPressed: enabled ? onPressed : null,
+                child: child,
+              )
+            : OutlinedButton(
+                style: style,
+                onPressed: enabled ? onPressed : null,
+                child: child,
+              ),
+      ),
     );
   }
 }

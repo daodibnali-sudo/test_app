@@ -25,12 +25,18 @@ class TimeSettingRow extends StatelessWidget {
           children: [
             SizedBox(
               width: 165,
-              child: Text(
-                value,
-                style: AppTextStyles.heading.copyWith(
-                  color: AppColors.textPrimary,
-                  fontSize: 60,
-                  fontFeatures: const [FontFeature.tabularFigures()],
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 140),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                child: Text(
+                  value,
+                  key: ValueKey(value),
+                  style: AppTextStyles.heading.copyWith(
+                    color: AppColors.textPrimary,
+                    fontSize: 60,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
                 ),
               ),
             ),

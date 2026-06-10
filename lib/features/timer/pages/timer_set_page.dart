@@ -12,12 +12,34 @@ import 'package:test_app/widgets/button.dart';
 import 'package:test_app/features/timer/widgets/timer_setting_widget.dart';
 
 class TimerSetPage extends ConsumerWidget {
-  const TimerSetPage({super.key});
+  const TimerSetPage({super.key, this.editingTimerPresetIndex});
+
+  final int? editingTimerPresetIndex;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timer = ref.watch(timerProvider);
+    final timer = ref.watch(
+      timerProvider.select(
+        (timer) => (
+          workMs: timer.workMs,
+          restMs: timer.restMs,
+          preparationMs: timer.preparationMs,
+          rounds: timer.rounds,
+          tenSecAnnouncement: timer.tenSecAnnouncement,
+          thirtySecAnnouncement: timer.thirtySecAnnouncement,
+          minuteAnnouncement: timer.minuteAnnouncement,
+          savedTimerPresets: timer.savedTimerPresets,
+        ),
+      ),
+    );
     final timerNotifier = ref.read(timerProvider.notifier);
+    final totalMs =
+        timer.preparationMs +
+        (timer.workMs * timer.rounds) +
+        (timer.restMs * (timer.rounds - 1));
+    final editingPreset = editingTimerPresetIndex == null
+        ? null
+        : timer.savedTimerPresets[editingTimerPresetIndex!];
 
     return Scaffold(
       backgroundColor: AppColors.blackBg,
@@ -28,10 +50,15 @@ class TimerSetPage extends ConsumerWidget {
           child: Column(
             children: [
               const SizedBox(height: 15),
-
               OutlinedSection(
                 child: Column(
                   children: [
+                    TimeSettingRow(
+                      value: formatTime(timer.preparationMs),
+                      label: 'Preparation',
+                      onMinus: timerNotifier.subtractPreparationTime,
+                      onPlus: timerNotifier.addPreparationTime,
+                    ),
                     TimeSettingRow(
                       value: formatTime(timer.workMs),
                       label: 'Work',
@@ -51,7 +78,7 @@ class TimerSetPage extends ConsumerWidget {
                       onPlus: timerNotifier.addRound,
                     ),
                     Text(
-                      'Total Workout Time: ${formatTime(timer.totalMs)}',
+                      'Total Workout Time: ${formatTime(totalMs)}',
                       style: AppTextStyles.heading.copyWith(
                         fontSize: 24,
                         color: AppColors.textDisabled,
@@ -104,7 +131,11 @@ class TimerSetPage extends ConsumerWidget {
                       text: 'START',
                       leading: Icon(Icons.play_circle_fill),
                       textColor: AppColors.blackSurface,
-                      onPressed: () => openTimerRunPage(context),
+                      onPressed: () {
+                        timerNotifier.prepareManualTimer();
+                        timerNotifier.start();
+                        openTimerRunPage(context);
+                      },
                     ),
                   ),
 
@@ -113,12 +144,36 @@ class TimerSetPage extends ConsumerWidget {
                   Expanded(
                     child: AppButton(
                       borderColor: AppColors.cyanLight,
-                      text: 'SAVE',
+                      text: editingPreset == null ? 'SAVE' : 'UPDATE',
                       textColor: AppColors.cyanLight,
                       leading: Icon(Icons.save),
                       iconColor: AppColors.cyanLight,
                       filled: false,
-                      onPressed: () {}, //TODO: save preset
+                      onPressed: () {
+                        final preset = timerNotifier.buildCurrentTimerPreset(
+                          title: editingPreset?.title,
+                        );
+
+                        if (editingTimerPresetIndex == null) {
+                          timerNotifier.addTimerPreset(preset);
+                        } else {
+                          timerNotifier.updateTimerPreset(
+                            editingTimerPresetIndex!,
+                            preset,
+                          );
+                        }
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              editingPreset == null
+                                  ? '${preset.title} saved'
+                                  : '${preset.title} updated',
+                            ),
+                            backgroundColor: AppColors.blackSurface,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
