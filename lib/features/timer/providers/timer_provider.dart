@@ -6,8 +6,11 @@ final timerProvider = NotifierProvider<TimerNotifier, TimerState>(
   TimerNotifier.new,
 );
 
+//How to make it t
+
 class TimerNotifier extends Notifier<TimerState> {
   Timer? _timer;
+  DateTime? _lastTick;
 
   @override
   TimerState build() {
@@ -31,46 +34,46 @@ class TimerNotifier extends Notifier<TimerState> {
   }
 
   void addWorkTime() {
-    final increment = state.workSeconds < 60 ? 10 : 30;
-    final newSeconds = state.workSeconds + increment;
+    final increment = state.workMs < 60000 ? 10000 : 30000;
+    final newSeconds = state.workMs + increment;
 
     state = state.copyWith(
-      workSeconds: newSeconds,
-      remainingSeconds: state.isWork ? newSeconds : state.remainingSeconds,
+      workMs: newSeconds,
+      remainingMs: state.isWork ? newSeconds : state.remainingMs,
     );
   }
 
   void subtractWorkTime() {
-    if (state.workSeconds <= 10) return;
+    if (state.workMs <= 10000) return;
 
-    final decrement = state.workSeconds <= 60 ? 10 : 30;
-    final newSeconds = state.workSeconds - decrement;
+    final decrement = state.workMs <= 60000 ? 10000 : 30000;
+    final newSeconds = state.workMs - decrement;
 
     state = state.copyWith(
-      workSeconds: newSeconds,
-      remainingSeconds: state.isWork ? newSeconds : state.remainingSeconds,
+      workMs: newSeconds,
+      remainingMs: state.isWork ? newSeconds : state.remainingMs,
     );
   }
 
   void addRestTime() {
-    final increment = state.restSeconds < 60 ? 10 : 30;
-    final newSeconds = state.restSeconds + increment;
+    final increment = state.restMs < 60000 ? 10000 : 30000;
+    final newSeconds = state.restMs + increment;
 
     state = state.copyWith(
-      restSeconds: newSeconds,
-      remainingSeconds: !state.isWork ? newSeconds : state.remainingSeconds,
+      restMs: newSeconds,
+      remainingMs: !state.isWork ? newSeconds : state.remainingMs,
     );
   }
 
   void subtractRestTime() {
-    if (state.restSeconds <= 10) return;
+    if (state.restMs <= 10000) return;
 
-    final decrement = state.restSeconds <= 60 ? 10 : 30;
-    final newSeconds = state.restSeconds - decrement;
+    final decrement = state.restMs <= 60000 ? 10000 : 30000;
+    final newSeconds = state.restMs - decrement;
 
     state = state.copyWith(
-      restSeconds: newSeconds,
-      remainingSeconds: !state.isWork ? newSeconds : state.remainingSeconds,
+      restMs: newSeconds,
+      remainingMs: !state.isWork ? newSeconds : state.remainingMs,
     );
   }
 
@@ -85,23 +88,27 @@ class TimerNotifier extends Notifier<TimerState> {
   void start() {
     if (state.isRunning) return;
 
+    _lastTick = DateTime.now();
     state = state.copyWith(isRunning: true);
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    _timer = Timer.periodic(const Duration(milliseconds: 50), (_) {
       tick();
     });
   }
 
   void pause() {
+    tick();
     _timer?.cancel();
+    _lastTick = null;
     state = state.copyWith(isRunning: false);
   }
 
   void reset() {
     _timer?.cancel();
+    _lastTick = null;
 
     state = state.copyWith(
-      remainingSeconds: state.workSeconds,
+      remainingMs: state.workMs,
       currentRound: 1,
       isRunning: false,
       isWork: true,
@@ -112,20 +119,40 @@ class TimerNotifier extends Notifier<TimerState> {
     if (state.isWork) {
       state = state.copyWith(
         isWork: false,
-        remainingSeconds: state.restSeconds,
+        remainingMs: state.restMs,
       );
     } else {
+      if (state.currentRound >= state.rounds) {
+        _timer?.cancel();
+        _lastTick = null;
+        state = state.copyWith(isRunning: false, remainingMs: 0);
+        return;
+      }
+
       state = state.copyWith(
         isWork: true,
         currentRound: state.currentRound + 1,
-        remainingSeconds: state.workSeconds,
+        remainingMs: state.workMs,
       );
+    }
+
+    if (state.isRunning) {
+      _lastTick = DateTime.now();
     }
   }
 
   void tick() {
-    if (state.remainingSeconds > 1) {
-      state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
+    if (!state.isRunning) return;
+
+    final now = DateTime.now();
+    final lastTick = _lastTick ?? now;
+    final elapsedMs = now.difference(lastTick).inMilliseconds;
+    _lastTick = now;
+
+    if (elapsedMs <= 0) return;
+
+    if (state.remainingMs > elapsedMs) {
+      state = state.copyWith(remainingMs: state.remainingMs - elapsedMs);
       return;
     }
 
@@ -136,22 +163,23 @@ class TimerNotifier extends Notifier<TimerState> {
     if (state.isWork) {
       state = state.copyWith(
         isWork: false,
-        remainingSeconds: state.restSeconds,
+        remainingMs: state.restMs,
       );
       return;
     }
 
     if (state.currentRound >= state.rounds) {
       _timer?.cancel();
+      _lastTick = null;
 
-      state = state.copyWith(isRunning: false, remainingSeconds: 0);
+      state = state.copyWith(isRunning: false, remainingMs: 0);
       return;
     }
 
     state = state.copyWith(
       isWork: true,
       currentRound: state.currentRound + 1,
-      remainingSeconds: state.workSeconds,
+      remainingMs: state.workMs,
     );
   }
 }

@@ -1,7 +1,7 @@
 class TimerState {
-  final int workSeconds;
-  final int restSeconds;
-  final int remainingSeconds;
+  final int workMs;
+  final int restMs;
+  final int remainingMs;
   final int rounds;
   final int currentRound;
   final bool isRunning;
@@ -9,15 +9,15 @@ class TimerState {
   final bool tenSecAnnouncement;
   final bool thirtySecAnnouncement;
   final bool minuteAnnouncement;
-  final int preparationSeconds;
+  final int preparationMs;
 
-  int get totalSeconds => (workSeconds + restSeconds) * rounds;
+  int get totalMs => (workMs * rounds) + (restMs * (rounds - 1));
 
   const TimerState({
-    required this.workSeconds,
-    required this.restSeconds,
-    required this.preparationSeconds,
-    required this.remainingSeconds,
+    required this.workMs,
+    required this.restMs,
+    required this.preparationMs,
+    required this.remainingMs,
     required this.rounds,
     required this.currentRound,
     required this.isRunning,
@@ -29,10 +29,10 @@ class TimerState {
 
   factory TimerState.initial() {
     return const TimerState(
-      workSeconds: 180,
-      restSeconds: 60,
-      preparationSeconds: 10,
-      remainingSeconds: 180,
+      workMs: 180000,
+      restMs: 60000,
+      preparationMs: 10000,
+      remainingMs: 180000,
       rounds: 3,
       currentRound: 1,
       isRunning: false,
@@ -44,10 +44,10 @@ class TimerState {
   }
 
   TimerState copyWith({
-    int? workSeconds,
-    int? restSeconds,
-    int? remainingSeconds,
-    int? preparationSeconds,
+    int? workMs,
+    int? restMs,
+    int? remainingMs,
+    int? preparationMs,
     int? rounds,
     int? currentRound,
     bool? isRunning,
@@ -57,17 +57,17 @@ class TimerState {
     bool? minuteAnnouncement,
   }) {
     return TimerState(
-      workSeconds: workSeconds ?? this.workSeconds,
-      restSeconds: restSeconds ?? this.restSeconds,
-      remainingSeconds: remainingSeconds ?? this.remainingSeconds,
-      preparationSeconds: preparationSeconds ?? this.preparationSeconds,
+      workMs: workMs ?? this.workMs,
+      restMs: restMs ?? this.restMs,
+      remainingMs: remainingMs ?? this.remainingMs,
+      preparationMs: preparationMs ?? this.preparationMs,
       rounds: rounds ?? this.rounds,
       currentRound: currentRound ?? this.currentRound,
       isRunning: isRunning ?? this.isRunning,
       isWork: isWork ?? this.isWork,
       tenSecAnnouncement: tenSecAnnouncement ?? this.tenSecAnnouncement,
       thirtySecAnnouncement:
-          thirtySecAnnouncement ?? this.thirtySecAnnouncement,
+      thirtySecAnnouncement ?? this.thirtySecAnnouncement,
       minuteAnnouncement: minuteAnnouncement ?? this.minuteAnnouncement,
     );
   }

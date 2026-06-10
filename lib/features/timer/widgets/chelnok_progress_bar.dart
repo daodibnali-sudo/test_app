@@ -8,8 +8,8 @@ import 'package:test_app/shared/theme/app_colors.dart';
 class ChelnokProgressBar extends StatelessWidget {
   const ChelnokProgressBar({
     super.key,
-    required this.remainingSeconds,
-    required this.totalSeconds,
+    required this.remainingMs,
+    required this.totalMs,
     required this.progressColor,
     this.size = 280,
     this.strokeWidth = 14,
@@ -20,8 +20,8 @@ class ChelnokProgressBar extends StatelessWidget {
     this.blur = 14,
   });
 
-  final int remainingSeconds;
-  final int totalSeconds;
+  final int remainingMs;
+  final int totalMs;
   final Color progressColor;
 
   final double size;
@@ -35,9 +35,9 @@ class ChelnokProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = totalSeconds == 0
+    final progress = totalMs == 0
         ? 0.0
-        : (remainingSeconds / totalSeconds).clamp(0.0, 1.0);
+        : (remainingMs / totalMs).clamp(0.0, 1.0);
 
     return SizedBox(
       width: size,
@@ -72,7 +72,7 @@ class ChelnokProgressBar extends StatelessWidget {
                 strokeWidth: strokeWidth,
               ),
               child: Center(
-                child: TimerDisplay(seconds: remainingSeconds),
+                child: TimerDisplay(seconds: remainingMs),
               ),
             ),
           ),

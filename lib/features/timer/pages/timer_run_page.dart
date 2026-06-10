@@ -16,7 +16,7 @@ class TimerRunPage extends ConsumerWidget {
     
     final timer = ref.watch(timerProvider);
     final controller = TimerRunController(ref);
-    final totalSeconds = timer.isWork ? timer.workSeconds : timer.restSeconds;
+    final totalMs = timer.isWork ? timer.workMs : timer.restMs;
     return Scaffold(
       extendBody: true,
       backgroundColor: AppColors.blackBg,
@@ -35,8 +35,8 @@ class TimerRunPage extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             ChelnokProgressBar(
-              remainingSeconds: timer.remainingSeconds,
-              totalSeconds: totalSeconds,
+              remainingMs: timer.remainingMs,
+              totalMs: totalMs,
               progressColor: timer.isWork ? AppColors.cyanLight : AppColors.success,
 ),
             const SizedBox(height: 12),

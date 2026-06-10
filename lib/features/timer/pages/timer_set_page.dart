@@ -33,13 +33,13 @@ class TimerSetPage extends ConsumerWidget {
                 child: Column(
                   children: [
                     TimeSettingRow(
-                      value: formatTime(timer.workSeconds),
+                      value: formatTime(timer.workMs),
                       label: 'Work',
                       onMinus: timerNotifier.subtractWorkTime,
                       onPlus: timerNotifier.addWorkTime,
                     ),
                     TimeSettingRow(
-                      value: formatTime(timer.restSeconds),
+                      value: formatTime(timer.restMs),
                       label: 'Rest',
                       onMinus: timerNotifier.subtractRestTime,
                       onPlus: timerNotifier.addRestTime,
@@ -51,7 +51,7 @@ class TimerSetPage extends ConsumerWidget {
                       onPlus: timerNotifier.addRound,
                     ),
                     Text(
-                      'Total Workout Time: ${formatTime(timer.totalSeconds)}',
+                      'Total Workout Time: ${formatTime(timer.totalMs)}',
                       style: AppTextStyles.heading.copyWith(
                         fontSize: 24,
                         color: AppColors.textDisabled,
