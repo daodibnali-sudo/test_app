@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_app/features/timer/data/timer_preset_storage.dart';
 import 'package:test_app/features/timer/logic/timer_state.dart';
 import 'package:test_app/features/timer/models/timer_custom_preset.dart';
 import 'package:test_app/features/timer/models/timer_quick_preset.dart';
+import 'package:test_app/features/timer/services/timer_sound_services.dart';
 
 final timerProvider = NotifierProvider<TimerNotifier, TimerState>(
   TimerNotifier.new,
@@ -13,13 +15,18 @@ final timerProvider = NotifierProvider<TimerNotifier, TimerState>(
 
 class TimerNotifier extends Notifier<TimerState> {
   final TimerPresetStorage _storage = const TimerPresetStorage();
+  final TimerSoundService _sounds = TimerSoundService();
+
   Timer? _timer;
   DateTime? _lastTick;
+
+  int? _lastCountdownBeepSecond;
 
   @override
   TimerState build() {
     ref.onDispose(() {
       _timer?.cancel();
+      unawaited(_sounds.dispose());
     });
 
     _loadSavedPresets();
@@ -38,6 +45,48 @@ class TimerNotifier extends Notifier<TimerState> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // TIMER SOUND LOGIC
+  // ---------------------------------------------------------------------------
+
+  void _resetCountdownBeep() {
+    _lastCountdownBeepSecond = null;
+  }
+
+  void _playStartBell() {
+    if (!state.allowSound) return;
+    unawaited(_sounds.playStartBell());
+  }
+
+  void _playEndBell() {
+    if (!state.allowSound) return;
+    unawaited(_sounds.playEndBell());
+  }
+
+  void _vibrate() {
+    if (!state.allowVibration) return;
+    unawaited(HapticFeedback.selectionClick());
+  }
+
+  void _playCountdownBeepIfNeeded(int remainingMs) {
+    if (!state.allowSound) return;
+
+    final secondsLeft = (remainingMs / 1000).ceil();
+
+    final isCountdownSecond = secondsLeft >= 1 && secondsLeft <= 5;
+    final alreadyPlayed = secondsLeft == _lastCountdownBeepSecond;
+
+    if (!isCountdownSecond || alreadyPlayed) return;
+
+    _lastCountdownBeepSecond = secondsLeft;
+
+    unawaited(_sounds.playCountdownBeep());
+  }
+
+  // ---------------------------------------------------------------------------
+  // ANNOUNCEMENT SETTINGS
+  // ---------------------------------------------------------------------------
+
   void toggleTenSecAnnouncement(bool value) {
     state = state.copyWith(tenSecAnnouncement: value);
   }
@@ -49,6 +98,18 @@ class TimerNotifier extends Notifier<TimerState> {
   void toggleMinuteAnnouncement(bool value) {
     state = state.copyWith(minuteAnnouncement: value);
   }
+
+  void toggleSound(bool value) {
+    state = state.copyWith(allowSound: value);
+  }
+
+  void toggleVibration(bool value) {
+    state = state.copyWith(allowVibration: value);
+  }
+
+  // ---------------------------------------------------------------------------
+  // TIMER SETTINGS
+  // ---------------------------------------------------------------------------
 
   void addWorkTime() {
     final increment = state.workMs < 60000 ? 10000 : 30000;
@@ -132,27 +193,34 @@ class TimerNotifier extends Notifier<TimerState> {
     state = state.copyWith(rounds: (state.rounds - 1).clamp(1, 99));
   }
 
+  // ---------------------------------------------------------------------------
+  // TIMER CONTROLS
+  // ---------------------------------------------------------------------------
+
   void start() {
     if (state.isRunning) return;
 
-    _lastTick = DateTime.now();
-    state = state.copyWith(isRunning: true);
+    state = state.copyWith(isRunning: true, isFinished: false);
 
-    _timer = Timer.periodic(const Duration(milliseconds: 100), (_) {
-      tick();
-    });
+    _playStartBell();
+    _vibrate();
+    _startTicker();
   }
 
   void pause() {
     tick();
+
     _timer?.cancel();
     _lastTick = null;
+
     state = state.copyWith(isRunning: false);
   }
 
   void reset() {
     _timer?.cancel();
     _lastTick = null;
+    _resetCountdownBeep();
+    _vibrate();
 
     if (state.isCustomWorkout) {
       state = state.copyWith(
@@ -160,7 +228,10 @@ class TimerNotifier extends Notifier<TimerState> {
         currentBlockIndex: 0,
         isRunning: false,
         isPreparation: true,
+        isFinished: false,
+        finishRemainingMs: 3000,
       );
+
       return;
     }
 
@@ -170,22 +241,37 @@ class TimerNotifier extends Notifier<TimerState> {
       isRunning: false,
       isWork: true,
       isPreparation: true,
+      isFinished: false,
+      finishRemainingMs: 3000,
     );
   }
 
   void skip() {
+    if (state.isFinished) return;
+
+    _resetCountdownBeep();
+    _vibrate();
+
     if (state.isCustomWorkout) {
       if (state.isPreparation) {
+        if (state.customBlocks.isEmpty) {
+          _finishWorkout();
+          return;
+        }
+
         state = state.copyWith(
           isPreparation: false,
-          remainingMs: state.customBlocks.isEmpty
-              ? 0
-              : state.customBlocks.first.durationMs,
+          remainingMs: state.customBlocks.first.durationMs,
         );
+
+        _restartTickReference();
+        _playStartBell();
         return;
       }
 
-      _moveToNextCustomBlock();
+      if (_moveToNextCustomBlock()) {
+        _playStartBell();
+      }
       return;
     }
 
@@ -196,12 +282,15 @@ class TimerNotifier extends Notifier<TimerState> {
         remainingMs: state.workMs,
       );
     } else if (state.isWork) {
+      if (state.currentRound >= state.rounds) {
+        _finishWorkout();
+        return;
+      }
+
       state = state.copyWith(isWork: false, remainingMs: state.restMs);
     } else {
       if (state.currentRound >= state.rounds) {
-        _timer?.cancel();
-        _lastTick = null;
-        state = state.copyWith(isRunning: false, remainingMs: 0);
+        _finishWorkout();
         return;
       }
 
@@ -212,10 +301,25 @@ class TimerNotifier extends Notifier<TimerState> {
       );
     }
 
-    if (state.isRunning) {
-      _lastTick = DateTime.now();
-    }
+    _restartTickReference();
+    _playStartBell();
   }
+
+  void stopRun() {
+    _timer?.cancel();
+    _lastTick = null;
+    _resetCountdownBeep();
+
+    state = state.copyWith(
+      isRunning: false,
+      isFinished: false,
+      finishRemainingMs: 3000,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // TIMER HEARTBEAT
+  // ---------------------------------------------------------------------------
 
   void tick() {
     if (!state.isRunning) return;
@@ -223,26 +327,54 @@ class TimerNotifier extends Notifier<TimerState> {
     final now = DateTime.now();
     final lastTick = _lastTick ?? now;
     final elapsedMs = now.difference(lastTick).inMilliseconds;
+
     _lastTick = now;
 
     if (elapsedMs <= 0) return;
 
-    if (state.remainingMs > elapsedMs) {
-      state = state.copyWith(remainingMs: state.remainingMs - elapsedMs);
+    if (state.isFinished) {
+      final nextMs = state.finishRemainingMs - elapsedMs;
+
+      if (nextMs > 0) {
+        state = state.copyWith(finishRemainingMs: nextMs);
+        return;
+      }
+
+      _timer?.cancel();
+      _lastTick = null;
+
+      state = state.copyWith(isRunning: false, finishRemainingMs: 0);
       return;
     }
+
+    final nextMs = state.remainingMs - elapsedMs;
+
+    if (nextMs > 0) {
+      _playCountdownBeepIfNeeded(nextMs);
+
+      state = state.copyWith(remainingMs: nextMs);
+
+      return;
+    }
+
+    _playEndBell();
 
     _handleRoundEnd();
   }
 
   void _handleRoundEnd() {
+    _resetCountdownBeep();
+
     if (state.isPreparation) {
       if (state.isCustomWorkout) {
+        if (state.customBlocks.isEmpty) {
+          _finishWorkout();
+          return;
+        }
+
         state = state.copyWith(
           isPreparation: false,
-          remainingMs: state.customBlocks.isEmpty
-              ? 0
-              : state.customBlocks.first.durationMs,
+          remainingMs: state.customBlocks.first.durationMs,
         );
       } else {
         state = state.copyWith(
@@ -251,6 +383,8 @@ class TimerNotifier extends Notifier<TimerState> {
           remainingMs: state.workMs,
         );
       }
+
+      _restartTickReference();
       return;
     }
 
@@ -260,14 +394,19 @@ class TimerNotifier extends Notifier<TimerState> {
     }
 
     if (state.isWork) {
+      if (state.currentRound >= state.rounds) {
+        _finishWorkout();
+        return;
+      }
+
       state = state.copyWith(isWork: false, remainingMs: state.restMs);
+
+      _restartTickReference();
       return;
     }
 
     if (state.currentRound >= state.rounds) {
-      _timer?.cancel();
-      _lastTick = null;
-      state = state.copyWith(isRunning: false, remainingMs: 0);
+      _finishWorkout();
       return;
     }
 
@@ -276,11 +415,44 @@ class TimerNotifier extends Notifier<TimerState> {
       currentRound: state.currentRound + 1,
       remainingMs: state.workMs,
     );
+
+    _restartTickReference();
   }
+
+  void _restartTickReference() {
+    if (state.isRunning) {
+      _lastTick = DateTime.now();
+    }
+  }
+
+  void _startTicker() {
+    _timer?.cancel();
+    _lastTick = DateTime.now();
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (_) => tick());
+  }
+
+  void _finishWorkout() {
+    _timer?.cancel();
+    _resetCountdownBeep();
+
+    state = state.copyWith(
+      isRunning: true,
+      isFinished: true,
+      remainingMs: 0,
+      finishRemainingMs: 3000,
+    );
+
+    _startTicker();
+  }
+
+  // ---------------------------------------------------------------------------
+  // QUICK PRESETS
+  // ---------------------------------------------------------------------------
 
   void applyPreset(TimerPreset preset) {
     _timer?.cancel();
     _lastTick = null;
+    _resetCountdownBeep();
 
     state = state.copyWith(
       workMs: preset.workMs,
@@ -294,6 +466,8 @@ class TimerNotifier extends Notifier<TimerState> {
       isWork: true,
       isPreparation: true,
       isCustomWorkout: false,
+      isFinished: false,
+      finishRemainingMs: 3000,
       customBlocks: const [],
       selectedPreset: preset,
       clearSelectedCustomPreset: true,
@@ -303,6 +477,7 @@ class TimerNotifier extends Notifier<TimerState> {
   void prepareManualTimer() {
     _timer?.cancel();
     _lastTick = null;
+    _resetCountdownBeep();
 
     state = state.copyWith(
       remainingMs: state.preparationMs,
@@ -312,23 +487,21 @@ class TimerNotifier extends Notifier<TimerState> {
       isWork: true,
       isPreparation: true,
       isCustomWorkout: false,
+      isFinished: false,
+      finishRemainingMs: 3000,
       customBlocks: const [],
       clearSelectedPreset: true,
       clearSelectedCustomPreset: true,
     );
   }
 
-  void addCustomPreset(TimerCustomPreset preset) {
-    final presets = [...state.customPresets, preset];
-    state = state.copyWith(customPresets: presets);
-    unawaited(_storage.saveCustomPresets(presets));
-  }
-
   void addTimerPreset(TimerPreset preset) {
     if (hasTimerPresetName(preset.title)) return;
 
     final presets = [...state.savedTimerPresets, preset];
+
     state = state.copyWith(savedTimerPresets: presets);
+
     unawaited(_storage.saveTimerPresets(presets));
   }
 
@@ -336,11 +509,72 @@ class TimerNotifier extends Notifier<TimerState> {
     if (index < 0 || index >= state.savedTimerPresets.length) return;
 
     final presets = [...state.savedTimerPresets];
+
     presets[index] = preset;
 
     state = state.copyWith(savedTimerPresets: presets, selectedPreset: preset);
+
     unawaited(_storage.saveTimerPresets(presets));
   }
+
+  // ---------------------------------------------------------------------------
+  // CUSTOM PRESETS
+  // ---------------------------------------------------------------------------
+
+  void addCustomPreset(TimerCustomPreset preset) {
+    final presets = [...state.customPresets, preset];
+
+    state = state.copyWith(customPresets: presets);
+
+    unawaited(_storage.saveCustomPresets(presets));
+  }
+
+  void startCustomPreset(TimerCustomPreset preset) {
+    _timer?.cancel();
+    _lastTick = null;
+    _resetCountdownBeep();
+
+    final blocks = List.of(preset.blocks);
+
+    state = state.copyWith(
+      selectedCustomPreset: preset,
+      clearSelectedPreset: true,
+      customBlocks: blocks,
+      currentBlockIndex: 0,
+      preparationMs: preset.preparationMs,
+      remainingMs: preset.preparationMs,
+      currentRound: 1,
+      isRunning: false,
+      isWork: true,
+      isPreparation: true,
+      isCustomWorkout: true,
+      isFinished: false,
+      finishRemainingMs: 3000,
+    );
+  }
+
+  bool _moveToNextCustomBlock() {
+    _resetCountdownBeep();
+
+    final nextIndex = state.currentBlockIndex + 1;
+
+    if (nextIndex >= state.customBlocks.length) {
+      _finishWorkout();
+      return false;
+    }
+
+    state = state.copyWith(
+      currentBlockIndex: nextIndex,
+      remainingMs: state.customBlocks[nextIndex].durationMs,
+    );
+
+    _restartTickReference();
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // PRESET HELPERS
+  // ---------------------------------------------------------------------------
 
   void clearPresetSelection() {
     state = state.copyWith(
@@ -390,47 +624,6 @@ class TimerNotifier extends Notifier<TimerState> {
     );
   }
 
-  void startCustomPreset(TimerCustomPreset preset) {
-    _timer?.cancel();
-    _lastTick = null;
-
-    final blocks = List.of(preset.blocks);
-
-    state = state.copyWith(
-      selectedCustomPreset: preset,
-      clearSelectedPreset: true,
-      customBlocks: blocks,
-      currentBlockIndex: 0,
-      preparationMs: preset.preparationMs,
-      remainingMs: preset.preparationMs,
-      currentRound: 1,
-      isRunning: false,
-      isWork: true,
-      isPreparation: true,
-      isCustomWorkout: true,
-    );
-  }
-
-  void _moveToNextCustomBlock() {
-    final nextIndex = state.currentBlockIndex + 1;
-
-    if (nextIndex >= state.customBlocks.length) {
-      _timer?.cancel();
-      _lastTick = null;
-      state = state.copyWith(isRunning: false, remainingMs: 0);
-      return;
-    }
-
-    state = state.copyWith(
-      currentBlockIndex: nextIndex,
-      remainingMs: state.customBlocks[nextIndex].durationMs,
-    );
-
-    if (state.isRunning) {
-      _lastTick = DateTime.now();
-    }
-  }
-
   String _nextPresetName({
     required String prefix,
     required Iterable<String> existingNames,
@@ -441,6 +634,7 @@ class TimerNotifier extends Notifier<TimerState> {
 
     for (var index = 1; index <= 99999999; index++) {
       final name = '$prefix #$index';
+
       if (!normalizedNames.contains(name.toLowerCase())) {
         return name;
       }
@@ -452,6 +646,7 @@ class TimerNotifier extends Notifier<TimerState> {
   String _formatMs(int ms) {
     final minutes = ms ~/ 60000;
     final seconds = ms % 60000 ~/ 1000;
+
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 }

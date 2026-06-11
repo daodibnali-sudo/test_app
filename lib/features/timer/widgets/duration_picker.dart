@@ -67,8 +67,11 @@ class _NumberPickerColumn extends StatelessWidget {
         children: [
           IconButton(
             onPressed: onPlus,
+            iconSize: 40,
             icon: const Icon(Icons.add),
             color: AppColors.cyanLight,
+            highlightColor: AppColors.cyanLight.withAlpha(100),
+            
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 140),
@@ -83,9 +86,11 @@ class _NumberPickerColumn extends StatelessWidget {
           ),
           Text(label, style: AppTextStyles.label),
           IconButton(
+            iconSize: 40,
             onPressed: onMinus,
             icon: const Icon(Icons.remove),
             color: AppColors.textPrimary,
+            highlightColor: AppColors.error.withAlpha(100),
           ),
         ],
       ),

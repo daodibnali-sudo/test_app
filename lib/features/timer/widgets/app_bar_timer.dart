@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
 import 'package:test_app/shared/theme/app_fonts.dart';
+import 'package:test_app/features/timer/widgets/timer_settings_sheet.dart';
 
 class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const TimerAppBar({super.key, this.title = ''});
+  const TimerAppBar({super.key, this.title = '', this.onBack});
 
   final String title;
+  final VoidCallback? onBack;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -15,7 +17,7 @@ class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: AppColors.blackBg,
       leading: IconButton(
-        onPressed: () => Navigator.pop(context),
+        onPressed: onBack ?? () => Navigator.pop(context),
         icon: const Icon(
           Icons.arrow_back_ios_new_outlined,
           color: AppColors.textPrimary,
@@ -31,7 +33,7 @@ class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () => showTimerSettingsSheet(context),
           icon: Icon(Icons.settings, color: AppColors.textPrimary),
         ),
       ],

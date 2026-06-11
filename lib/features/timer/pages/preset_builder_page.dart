@@ -11,7 +11,7 @@ import 'package:test_app/router/open_timer.dart';
 import 'package:test_app/shared/theme/app_colors.dart';
 import 'package:test_app/shared/theme/app_fonts.dart';
 import 'package:test_app/widgets/button.dart';
-import 'package:test_app/widgets/outlined_section.dart';
+//import 'package:test_app/widgets/outlined_section.dart';
 
 class PresetBuilderPage extends ConsumerStatefulWidget {
   const PresetBuilderPage({super.key});
@@ -153,6 +153,9 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     setState(() => _blocks.removeAt(index));
   }
 
+
+//UI/////////////////////////////////////////////////////////////UI/////////////
+
   @override
   Widget build(BuildContext context) {
     final canUsePreset = _acceptedBlocks.isNotEmpty;
@@ -174,18 +177,17 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textPrimary,
                     ),
-                    decoration: _inputDecoration('Preset name'),
+                    decoration: _inputDecoration("e.g. \"light sparring\""),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   const _BlocksHeader(),
                   if (_blocks.isEmpty) ...[
-                    const SizedBox(height: 12),
-                    OutlinedSection(
-                      child: Text(
+                    const SizedBox(height: 7),
+                    Text(
                         'Add your first workout block',
                         style: AppTextStyles.label,
                       ),
-                    ),
+                    
                   ],
                 ],
               ),
@@ -195,7 +197,7 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 sliver: SliverReorderableList(
                   itemCount: _blocks.length,
-                  onReorderStart: (_) => HapticFeedback.mediumImpact(),
+                  onReorderStart: (_) => HapticFeedback.vibrate(),
                   onReorderItem: _reorderBlock,
                   proxyDecorator: _dragProxy,
                   itemBuilder: (context, index) {
@@ -221,7 +223,7 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
               sliver: SliverList.list(
                 children: [
                   AppButton(
-                    text: '+ Add Block',
+                    text: 'Add Block',
                     leading: const Icon(Icons.add),
                     backgroundColor: AppColors.blackSurface,
                     borderColor: AppColors.cyanLight,
@@ -235,7 +237,7 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
                     children: [
                       Expanded(
                         child: AppButton(
-                          text: 'Save Preset',
+                          text: 'SAVE',
                           leading: const Icon(Icons.save),
                           backgroundColor: AppColors.blackSurface,
                           borderColor: AppColors.cyanLight,
@@ -249,7 +251,7 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: AppButton(
-                          text: 'Start',
+                          text: 'START',
                           leading: const Icon(Icons.play_arrow),
                           backgroundColor: AppColors.cyanLight,
                           textColor: AppColors.blackBg,
@@ -293,15 +295,14 @@ class _BlocksHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedSection(
-      child: Row(
+    return Row(
         children: [
           Text(
             'Blocks',
             style: AppTextStyles.title.copyWith(color: AppColors.textPrimary),
           ),
         ],
-      ),
+      
     );
   }
 }

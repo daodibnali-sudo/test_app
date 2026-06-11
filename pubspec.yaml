@@ -7,6 +7,7 @@ environment:
   sdk: ^3.12.0
 
 dependencies:
+  audioplayers: ^6.7.1
   cupertino_native: ^0.1.1
   flutter:
     sdk: flutter
@@ -22,6 +23,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/sounds/
   fonts:
     - family: Alata
       fonts:

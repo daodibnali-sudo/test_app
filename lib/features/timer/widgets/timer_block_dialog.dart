@@ -68,7 +68,7 @@ class _TimerBlockDialogState extends State<TimerBlockDialog> {
           TextField(
             controller: _nameController,
             style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
-            decoration: _inputDecoration('Block name'),
+            decoration: _inputDecoration('e.g. "Work"'),
           ),
           const SizedBox(height: 12),
           DurationPicker(

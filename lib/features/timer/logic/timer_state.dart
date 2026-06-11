@@ -23,6 +23,10 @@ class TimerState {
   final int currentBlockIndex;
   final bool isCustomWorkout;
   final bool isLoadingPresets;
+  final bool isFinished;
+  final int finishRemainingMs;
+  final bool allowSound;
+  final bool allowVibration;
 
   int get totalMs => isCustomWorkout
       ? preparationMs +
@@ -39,16 +43,22 @@ class TimerState {
   }
 
   int get currentPhaseTotalMs {
+    if (isFinished) return 3000;
     if (isPreparation) return preparationMs;
     if (isCustomWorkout) return currentBlock?.durationMs ?? 0;
     return isWork ? workMs : restMs;
   }
 
   String get currentPhaseName {
+    if (isFinished) return 'good work';
     if (isPreparation) return 'Preparation';
     if (isCustomWorkout) return currentBlock?.name ?? 'Finished';
     return isWork ? 'Work' : 'Rest';
   }
+
+  int get totalWorkMs => isCustomWorkout
+      ? customBlocks.fold(0, (total, block) => total + block.durationMs)
+      : workMs * rounds;
 
   const TimerState({
     this.selectedPreset,
@@ -71,6 +81,10 @@ class TimerState {
     required this.tenSecAnnouncement,
     required this.thirtySecAnnouncement,
     required this.minuteAnnouncement,
+    required this.isFinished,
+    required this.finishRemainingMs,
+    required this.allowSound,
+    required this.allowVibration,
   });
 
   factory TimerState.initial() {
@@ -90,6 +104,10 @@ class TimerState {
       tenSecAnnouncement: true,
       thirtySecAnnouncement: true,
       minuteAnnouncement: true,
+      isFinished: false,
+      finishRemainingMs: 3000,
+      allowSound: true,
+      allowVibration: true,
     );
   }
 
@@ -114,6 +132,10 @@ class TimerState {
     bool? tenSecAnnouncement,
     bool? thirtySecAnnouncement,
     bool? minuteAnnouncement,
+    bool? isFinished,
+    int? finishRemainingMs,
+    bool? allowSound,
+    bool? allowVibration,
     bool clearSelectedPreset = false,
     bool clearSelectedCustomPreset = false,
   }) {
@@ -143,6 +165,10 @@ class TimerState {
       thirtySecAnnouncement:
           thirtySecAnnouncement ?? this.thirtySecAnnouncement,
       minuteAnnouncement: minuteAnnouncement ?? this.minuteAnnouncement,
+      isFinished: isFinished ?? this.isFinished,
+      finishRemainingMs: finishRemainingMs ?? this.finishRemainingMs,
+      allowSound: allowSound ?? this.allowSound,
+      allowVibration: allowVibration ?? this.allowVibration,
     );
   }
 }

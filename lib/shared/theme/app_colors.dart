@@ -5,6 +5,7 @@ class AppColors {
   //primary
   static const cyanLight = Color(0xff00D9FF);
   static const cyanDeep = Color(0xff0097B8);
+  static const lagoon = Color(0xff0047ff);
   //bg + gray
   static const blackBg = Color(0xFf090b0f);
   static const blackSurface = Color(0xFF12161D);
