@@ -14,7 +14,9 @@ import 'package:test_app/widgets/button.dart';
 //import 'package:test_app/widgets/outlined_section.dart';
 
 class PresetBuilderPage extends ConsumerStatefulWidget {
-  const PresetBuilderPage({super.key});
+  const PresetBuilderPage({super.key, this.editingCustomPresetIndex});
+
+  final int? editingCustomPresetIndex;
 
   @override
   ConsumerState<PresetBuilderPage> createState() => _PresetBuilderPageState();
@@ -28,6 +30,26 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
       .where((block) => !block.isRestSuggestion)
       .map((block) => block.block)
       .toList();
+
+  bool get _isEditing => widget.editingCustomPresetIndex != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final editingIndex = widget.editingCustomPresetIndex;
+    final presets = ref.read(timerProvider).customPresets;
+
+    if (editingIndex == null ||
+        editingIndex < 0 ||
+        editingIndex >= presets.length) {
+      return;
+    }
+
+    final preset = presets[editingIndex];
+    _nameController.text = preset.name;
+    _blocks.addAll(preset.blocks.map(_DraftBlock.new));
+  }
 
   @override
   void dispose() {
@@ -87,7 +109,10 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     final blocks = _acceptedBlocks;
 
     if (blocks.isEmpty) return null;
-    if (notifier.hasCustomPresetName(name)) {
+    if (notifier.hasCustomPresetName(
+      name,
+      excludingIndex: widget.editingCustomPresetIndex,
+    )) {
       if (showDuplicateAlert) _showNameAlert(name);
       return null;
     }
@@ -122,7 +147,15 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     final preset = _buildPreset(showDuplicateAlert: true);
     if (preset == null) return;
 
-    ref.read(timerProvider.notifier).addCustomPreset(preset);
+    final notifier = ref.read(timerProvider.notifier);
+    final editingIndex = widget.editingCustomPresetIndex;
+
+    if (editingIndex == null) {
+      notifier.addCustomPreset(preset);
+    } else {
+      notifier.updateCustomPreset(editingIndex, preset);
+    }
+
     Navigator.pop(context);
   }
 
@@ -131,8 +164,15 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     if (preset == null) return;
 
     final notifier = ref.read(timerProvider.notifier);
+    final editingIndex = widget.editingCustomPresetIndex;
+
+    if (editingIndex == null) {
+      notifier.addCustomPreset(preset);
+    } else {
+      notifier.updateCustomPreset(editingIndex, preset);
+    }
+
     notifier
-      ..addCustomPreset(preset)
       ..startCustomPreset(preset)
       ..start();
     openTimerRunPage(context);
@@ -153,8 +193,7 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     setState(() => _blocks.removeAt(index));
   }
 
-
-//UI/////////////////////////////////////////////////////////////UI/////////////
+  //UI/////////////////////////////////////////////////////////////UI/////////////
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +209,10 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               sliver: SliverList.list(
                 children: [
-                  Text('Custom Preset', style: AppTextStyles.heading),
+                  Text(
+                    _isEditing ? 'Edit Custom Preset' : 'Custom Preset',
+                    style: AppTextStyles.heading,
+                  ),
                   const SizedBox(height: 14),
                   TextField(
                     controller: _nameController,
@@ -184,10 +226,9 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
                   if (_blocks.isEmpty) ...[
                     const SizedBox(height: 7),
                     Text(
-                        'Add your first workout block',
-                        style: AppTextStyles.label,
-                      ),
-                    
+                      'Add your first workout block',
+                      style: AppTextStyles.label,
+                    ),
                   ],
                 ],
               ),
@@ -237,7 +278,7 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
                     children: [
                       Expanded(
                         child: AppButton(
-                          text: 'SAVE',
+                          text: _isEditing ? 'UPDATE' : 'SAVE',
                           leading: const Icon(Icons.save),
                           backgroundColor: AppColors.blackSurface,
                           borderColor: AppColors.cyanLight,
@@ -296,13 +337,12 @@ class _BlocksHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-        children: [
-          Text(
-            'Blocks',
-            style: AppTextStyles.title.copyWith(color: AppColors.textPrimary),
-          ),
-        ],
-      
+      children: [
+        Text(
+          'Blocks',
+          style: AppTextStyles.title.copyWith(color: AppColors.textPrimary),
+        ),
+      ],
     );
   }
 }

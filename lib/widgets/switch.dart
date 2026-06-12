@@ -11,7 +11,7 @@ class ChelnockSwitch extends StatefulWidget {
   });
 
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool>? onChanged;
 
   @override
   State<ChelnockSwitch> createState() => _ChelnockSwitchState();
@@ -24,10 +24,12 @@ class _ChelnockSwitchState extends State<ChelnockSwitch> {
   Timer? _resetTimer;
 
   void _toggle() {
+    if (widget.onChanged == null) return;
+
     _resetTimer?.cancel();
 
     setState(() => _isAnimating = true);
-    widget.onChanged(!widget.value);
+    widget.onChanged!(!widget.value);
 
     _resetTimer = Timer(_moveDuration, () {
       if (!mounted) return;
@@ -47,22 +49,23 @@ class _ChelnockSwitchState extends State<ChelnockSwitch> {
     const double trackHeight = 30;
     const double thumbWidth = 38;
     const double thumbHeight = 25;
+    final isEnabled = widget.onChanged != null;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: _toggle,
+      onTap: isEnabled ? _toggle : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: trackWidth,
         height: trackHeight,
         padding: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 2.5),
         decoration: BoxDecoration(
-          color: widget.value
+          color: isEnabled && widget.value
               ? const Color(0xFF00D6C9)
               : const Color(0xFF2B2D33),
           borderRadius: BorderRadius.circular(999),
           boxShadow: [
-            if (widget.value)
+            if (isEnabled && widget.value)
               BoxShadow(
                 color: const Color(0xFF00D6C9).withValues(alpha: 0.35),
                 blurRadius: 16,
@@ -79,11 +82,11 @@ class _ChelnockSwitchState extends State<ChelnockSwitch> {
           child: AnimatedScale(
             duration: const Duration(milliseconds: 140),
             curve: Curves.easeOut,
-            scale: _isAnimating ? 1.9 : 1,
+            scale: isEnabled && _isAnimating ? 1.9 : 1,
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 140),
-              opacity: _isAnimating ? 0.62 : 1,
-              child: _isAnimating
+              opacity: isEnabled ? (_isAnimating ? 0.62 : 1) : 0.45,
+              child: isEnabled && _isAnimating
                   ? _LiquidGlassThumb(width: thumbWidth, height: thumbHeight)
                   : _DefaultThumb(width: thumbWidth, height: thumbHeight),
             ),

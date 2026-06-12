@@ -28,6 +28,8 @@ class TimerSetPage extends ConsumerWidget {
           tenSecAnnouncement: timer.tenSecAnnouncement,
           thirtySecAnnouncement: timer.thirtySecAnnouncement,
           minuteAnnouncement: timer.minuteAnnouncement,
+          canEnableMinuteAnnouncement:
+              timer.workMs > 60000 || timer.restMs > 60000,
           savedTimerPresets: timer.savedTimerPresets,
         ),
       ),
@@ -116,6 +118,7 @@ class TimerSetPage extends ConsumerWidget {
                       label: 'Minute left',
                       value: timer.minuteAnnouncement,
                       onChanged: timerNotifier.toggleMinuteAnnouncement,
+                      enabled: timer.canEnableMinuteAnnouncement,
                     ),
                   ],
                 ),

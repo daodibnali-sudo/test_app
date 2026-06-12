@@ -18,15 +18,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: () => _showHomeMenu(context),
         icon: Icon(Icons.menu, color: AppColors.textPrimary),
       ),
-      actions: [
-        IconButton(
-          onPressed: () {},
-          icon: Icon(
-            Icons.account_circle_outlined,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
+      
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(0),
         child: Divider(

@@ -19,17 +19,36 @@ class TimerRunPage extends ConsumerStatefulWidget {
 
 class _TimerRunPageState extends ConsumerState<TimerRunPage> {
   bool _autoPopped = false;
+  bool _stopCalled = false;
+
+  late final void Function() _stopRun;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final timerNotifier = ref.read(timerProvider.notifier);
+    _stopRun = timerNotifier.stopRun;
+  }
 
   void _leaveRunPage() {
-    ref.read(timerProvider.notifier).stopRun();
+    _stopRunOnce();
+
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     }
   }
 
+  void _stopRunOnce() {
+    if (_stopCalled) return;
+
+    _stopCalled = true;
+    _stopRun();
+  }
+
   @override
   void dispose() {
-    ref.read(timerProvider.notifier).stopRun();
+    _stopRunOnce();
     super.dispose();
   }
 
@@ -43,13 +62,19 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
         ),
       ),
       (_, next) {
-        if (_autoPopped || !next.isFinished || next.finishRemainingMs > 0) {
+        if (_autoPopped ||
+            _stopCalled ||
+            !next.isFinished ||
+            next.finishRemainingMs > 0) {
           return;
         }
 
         _autoPopped = true;
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted || !Navigator.canPop(context)) return;
+          if (!mounted || _stopCalled || !Navigator.canPop(context)) return;
+
+          _stopRunOnce();
           Navigator.pop(context);
         });
       },
@@ -66,9 +91,7 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) {
-          ref.read(timerProvider.notifier).stopRun();
-        }
+        if (didPop) _stopRunOnce();
       },
       child: Scaffold(
         extendBody: true,
@@ -83,7 +106,7 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
               const SizedBox(height: 24),
               const _ProgressSection(),
               const Spacer(),
-              const _RunActions(),
+              _RunActions(onDone: _leaveRunPage),
               const SizedBox(height: 50),
             ],
           ),
@@ -108,7 +131,10 @@ class _PhaseTitle extends ConsumerWidget {
             ? AppColors.cyanLight
             : AppColors.success;
 
-        return (name: timer.currentPhaseName, color: color);
+        return (
+          name: timer.isFinished ? 'WORKOUT COMPLETE' : timer.currentPhaseName,
+          color: color,
+        );
       }),
     );
 
@@ -129,14 +155,107 @@ class _ProgressSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [_ProgressRing(), _TimerText()],
+    return Consumer(
+      builder: (context, ref, child) {
+        final isFinished = ref.watch(
+          timerProvider.select((timer) => timer.isFinished),
+        );
+
+        return Column(
+          children: [
+            const Stack(
+              alignment: Alignment.center,
+              children: [_ProgressRing(), _TimerText()],
+            ),
+            const SizedBox(height: 12),
+            if (isFinished)
+              const _FinishedSummaryCard()
+            else
+              const _ProgressLabel(),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _FinishedSummaryCard extends ConsumerWidget {
+  const _FinishedSummaryCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summary = ref.watch(
+      timerProvider.select(
+        (timer) => (
+          totalWork: formatTime(timer.totalWorkMs),
+          totalTime: formatTime(timer.totalMs),
         ),
-        SizedBox(height: 12),
-        _ProgressLabel(),
+      ),
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.blackSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cyanDeep.withAlpha(110)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _SummaryMetric(
+              label: 'TOTAL WORK',
+              value: summary.totalWork,
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 38,
+            color: AppColors.textDisabled.withAlpha(90),
+          ),
+          Expanded(
+            child: _SummaryMetric(
+              label: 'TOTAL TIME',
+              value: summary.totalTime,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryMetric extends StatelessWidget {
+  const _SummaryMetric({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.label.copyWith(
+            color: AppColors.textSecondary,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.heading.copyWith(
+            color: AppColors.textPrimary,
+            fontSize: 24,
+          ),
+        ),
       ],
     );
   }
@@ -159,7 +278,7 @@ class _ProgressRing extends ConsumerWidget {
 
         return (
           remainingMs: timer.isFinished
-              ? timer.finishRemainingMs
+              ? timer.currentPhaseTotalMs
               : timer.remainingMs,
           totalMs: timer.currentPhaseTotalMs,
           color: color,
@@ -182,7 +301,10 @@ class _TimerText extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timerText = ref.watch(
       timerProvider.select((timer) {
-        if (timer.isFinished) return (isFinished: true, displayMs: 0);
+        if (timer.isFinished) {
+          return (isFinished: true, displayMs: 0);
+        }
+
         if (timer.remainingMs <= 0) {
           return (isFinished: false, displayMs: 0);
         }
@@ -199,10 +321,11 @@ class _TimerText extends ConsumerWidget {
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeInCubic,
       child: timerText.isFinished
-          ? Text(
-              '\u{1F4AA}',
+          ? Icon(
+              Icons.check_rounded,
               key: const ValueKey('finished'),
-              style: AppTextStyles.timer.copyWith(fontSize: 72),
+              color: AppColors.success,
+              size: 86,
             )
           : TimerDisplay(
               key: ValueKey(timerText.displayMs),
@@ -223,7 +346,8 @@ class _ProgressLabel extends ConsumerWidget {
           return (
             isFinished: true,
             label:
-                'Total work: ${formatTime(timer.totalWorkMs)}\nTotal time: ${formatTime(timer.totalMs)}',
+                'Total work: ${formatTime(timer.totalWorkMs)}\n'
+                'Total time: ${formatTime(timer.totalMs)}',
           );
         }
 
@@ -253,7 +377,9 @@ class _ProgressLabel extends ConsumerWidget {
 }
 
 class _RunActions extends ConsumerWidget {
-  const _RunActions();
+  const _RunActions({required this.onDone});
+
+  final VoidCallback onDone;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -262,7 +388,21 @@ class _RunActions extends ConsumerWidget {
         (timer) => (isRunning: timer.isRunning, isFinished: timer.isFinished),
       ),
     );
-    if (timer.isFinished) return const SizedBox.shrink();
+
+    if (timer.isFinished) {
+      return AppButton(
+        text: 'DONE',
+        leading: const Icon(Icons.check_rounded),
+        backgroundColor: AppColors.cyanLight,
+        iconColor: AppColors.blackBg,
+        textStyle: const TextStyle(
+          color: AppColors.blackBg,
+          fontWeight: FontWeight.w700,
+          fontSize: 16,
+        ),
+        onPressed: onDone,
+      );
+    }
 
     final controller = TimerRunController(ref);
 

@@ -10,12 +10,14 @@ class CustomPresetScrollList extends StatelessWidget {
     required this.presets,
     required this.selectedPreset,
     required this.onPresetTap,
+    this.onPresetLongPress,
     this.height = 112,
   });
 
   final List<TimerCustomPreset> presets;
   final TimerCustomPreset? selectedPreset;
   final ValueChanged<TimerCustomPreset> onPresetTap;
+  final ValueChanged<int>? onPresetLongPress;
   final double height;
 
   @override
@@ -55,6 +57,9 @@ class CustomPresetScrollList extends StatelessWidget {
                     height: height,
                     isSelected: selected,
                     onTap: () => onPresetTap(preset),
+                    onLongPress: onPresetLongPress == null
+                        ? null
+                        : () => onPresetLongPress!(index),
                     backgroundColor: AppColors.blackSurface,
                     borderColor: selected
                         ? AppColors.cyanLight

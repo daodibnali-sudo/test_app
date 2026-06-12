@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/features/timer/pages/preset_builder_page.dart';
+import 'package:test_app/features/timer/pages/preset_list_page.dart';
 import 'package:test_app/features/timer/pages/timer_run_page.dart';
 import 'package:test_app/features/timer/pages/timer_set_page.dart';
 
@@ -23,10 +24,26 @@ Future<void> openTimerRunPage(BuildContext context) {
   );
 }
 
-Future<void> openPresetBuilderPage(BuildContext context) {
+Future<void> openPresetBuilderPage(
+  BuildContext context, {
+  int? editingCustomPresetIndex,
+}) {
   return Navigator.push(
     context,
-    _animatedRoute(builder: (_) => const PresetBuilderPage()),
+    _animatedRoute(
+      builder: (_) =>
+          PresetBuilderPage(editingCustomPresetIndex: editingCustomPresetIndex),
+    ),
+  );
+}
+
+Future<void> openPresetListPage(
+  BuildContext context, {
+  required PresetListType type,
+}) {
+  return Navigator.push(
+    context,
+    _animatedRoute(builder: (_) => PresetListPage(type: type)),
   );
 }
 
