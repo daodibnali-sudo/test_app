@@ -1,4 +1,4 @@
-name: test_app
+name: chelnok_boxing_timer
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0+1
@@ -21,14 +21,31 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
 
 
 flutter:
   uses-material-design: true
   assets:
+    - assets/images/
     - assets/sounds/
   fonts:
     - family: Alata
       fonts:
         - asset: assets/Alata/Alata-Regular.ttf
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/images/logoPNGthousand.png
+
+flutter_native_splash:
+  color: "#090B0F"
+  image: assets/images/logoPNGthousand.png
+  android: true
+  ios: false
+  web: false
+  android_12:
+    color: "#090B0F"
+    image: assets/images/logoPNGthousand.png

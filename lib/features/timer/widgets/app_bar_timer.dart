@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
-import 'package:test_app/features/timer/widgets/timer_settings_sheet.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/timer_settings_sheet.dart';
 
 class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
   const TimerAppBar({super.key, this.title = '', this.onBack});

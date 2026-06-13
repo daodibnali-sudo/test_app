@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/features/timer/models/timer_block.dart';
-import 'package:test_app/features/timer/widgets/duration_picker.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_block.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/duration_picker.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
 
 class TimerBlockDialog extends StatefulWidget {
   const TimerBlockDialog({

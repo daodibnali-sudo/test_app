@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/features/timer/providers/timer_provider.dart';
+import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
 
 class TimerRunController {
   TimerRunController(this.ref);

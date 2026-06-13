@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/features/legal/data/legal_documents.dart';
-import 'package:test_app/features/legal/models/legal_section.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
-import 'package:test_app/widgets/button.dart';
+import 'package:chelnok_boxing_timer/features/legal/data/legal_documents.dart';
+import 'package:chelnok_boxing_timer/features/legal/models/legal_section.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
+import 'package:chelnok_boxing_timer/widgets/button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LegalDocumentPage extends StatelessWidget {

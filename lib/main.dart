@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/features/timer/pages/home_page.dart';
-import 'package:test_app/features/timer/providers/timer_provider.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
+import 'package:chelnok_boxing_timer/features/timer/pages/home_page.dart';
+import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

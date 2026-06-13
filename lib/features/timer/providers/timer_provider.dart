@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/features/timer/data/timer_preset_storage.dart';
-import 'package:test_app/features/timer/logic/timer_state.dart';
-import 'package:test_app/features/timer/models/timer_custom_preset.dart';
-import 'package:test_app/features/timer/models/timer_quick_preset.dart';
-import 'package:test_app/features/timer/services/timer_haptic_service.dart';
-import 'package:test_app/features/timer/services/timer_sound_services.dart';
+import 'package:chelnok_boxing_timer/features/timer/data/timer_preset_storage.dart';
+import 'package:chelnok_boxing_timer/features/timer/logic/timer_state.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_custom_preset.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_quick_preset.dart';
+import 'package:chelnok_boxing_timer/features/timer/services/timer_haptic_service.dart';
+import 'package:chelnok_boxing_timer/features/timer/services/timer_sound_services.dart';
 
 final timerProvider = NotifierProvider<TimerNotifier, TimerState>(
   TimerNotifier.new,

@@ -1,4 +1,4 @@
-import 'package:test_app/features/legal/models/legal_section.dart';
+import 'package:chelnok_boxing_timer/features/legal/models/legal_section.dart';
 
 const legalDeveloperName = 'Rachima Beršová, David Berš';
 const legalContactEmail = 'daodibnali@gmail.com';
