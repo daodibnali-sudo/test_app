@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:test_app/features/timer/pages/preset_list_page.dart';
-import 'package:test_app/features/timer/providers/timer_provider.dart';
-import 'package:test_app/features/timer/widgets/preset_actions_sheet.dart';
-import 'package:test_app/features/timer/widgets/custom_preset_scroll_list.dart';
-import 'package:test_app/features/timer/widgets/preset_scroll_list.dart';
-import 'package:test_app/router/open_timer.dart';
+import 'package:chelnok_boxing_timer/features/timer/pages/preset_list_page.dart';
+import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/preset_actions_sheet.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/custom_preset_scroll_list.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/preset_scroll_list.dart';
+import 'package:chelnok_boxing_timer/router/open_timer.dart';
 
-import 'package:test_app/widgets/button.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
-import 'package:test_app/widgets/app_bar.dart';
-//import 'package:test_app/widgets/outlined_section.dart';
-//import 'package:test_app/widgets/weight_badge.dart';
+import 'package:chelnok_boxing_timer/widgets/button.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
+import 'package:chelnok_boxing_timer/widgets/app_bar.dart';
+//import 'package:chelnok_boxing_timer/widgets/outlined_section.dart';
+//import 'package:chelnok_boxing_timer/widgets/weight_badge.dart';
 
 final double userWeight = 0;
 final String userName = 'Boxer';

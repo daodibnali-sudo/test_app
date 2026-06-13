@@ -1,4 +1,4 @@
-import 'package:test_app/features/timer/models/timer_block.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_block.dart';
 
 class TimerCustomPreset {
   const TimerCustomPreset({

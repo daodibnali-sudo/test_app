@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:test_app/core/ads/ad_ids.dart';
+import 'package:chelnok_boxing_timer/core/ads/ad_ids.dart';
 
 class InterstitialAdService {
   InterstitialAdService._();

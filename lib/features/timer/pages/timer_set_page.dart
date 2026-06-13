@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/features/timer/formatters/timer_formatter.dart';
-import 'package:test_app/features/timer/providers/timer_provider.dart';
-import 'package:test_app/router/open_timer.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
-import 'package:test_app/features/timer/widgets/announcement_row.dart';
-import 'package:test_app/features/timer/widgets/app_bar_timer.dart';
-import 'package:test_app/widgets/outlined_section.dart';
-import 'package:test_app/widgets/button.dart';
-import 'package:test_app/features/timer/widgets/timer_setting_widget.dart';
+import 'package:chelnok_boxing_timer/features/timer/formatters/timer_formatter.dart';
+import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
+import 'package:chelnok_boxing_timer/router/open_timer.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/announcement_row.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/app_bar_timer.dart';
+import 'package:chelnok_boxing_timer/widgets/outlined_section.dart';
+import 'package:chelnok_boxing_timer/widgets/button.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/timer_setting_widget.dart';
 
 class TimerSetPage extends ConsumerWidget {
   const TimerSetPage({super.key, this.editingTimerPresetIndex});

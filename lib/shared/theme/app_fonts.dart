@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 
 abstract final class AppFonts {
   static const String inter = 'Inter';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/features/timer/models/timer_quick_preset.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_quick_preset.dart';
 
 const timerPresets = [
   TimerPreset(

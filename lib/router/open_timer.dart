@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/features/timer/pages/preset_builder_page.dart';
-import 'package:test_app/features/timer/pages/preset_list_page.dart';
-import 'package:test_app/features/timer/pages/timer_run_page.dart';
-import 'package:test_app/features/timer/pages/timer_set_page.dart';
+import 'package:chelnok_boxing_timer/features/timer/pages/preset_builder_page.dart';
+import 'package:chelnok_boxing_timer/features/timer/pages/preset_list_page.dart';
+import 'package:chelnok_boxing_timer/features/timer/pages/timer_run_page.dart';
+import 'package:chelnok_boxing_timer/features/timer/pages/timer_set_page.dart';
 
 Future<void> openTimerSetPage(
   BuildContext context, {
