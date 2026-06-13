@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:test_app/core/ads/interstitial_ad_service.dart';
 import 'package:test_app/features/timer/formatters/timer_formatter.dart';
 import 'package:test_app/features/timer/logic/timer_run_controller.dart';
+import 'package:test_app/features/timer/pages/timer_set_page.dart';
 import 'package:test_app/features/timer/providers/timer_provider.dart';
 import 'package:test_app/features/timer/widgets/app_bar_timer.dart';
 import 'package:test_app/features/timer/widgets/chelnok_progress_bar.dart';
@@ -18,8 +20,8 @@ class TimerRunPage extends ConsumerStatefulWidget {
 }
 
 class _TimerRunPageState extends ConsumerState<TimerRunPage> {
-  bool _autoPopped = false;
   bool _stopCalled = false;
+  bool _donePressed = false;
 
   late final void Function() _stopRun;
 
@@ -39,6 +41,49 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
     }
   }
 
+  void _handleDone() {
+    if (_donePressed) return;
+
+    _donePressed = true;
+    _stopRunOnce();
+
+    InterstitialAdService.instance.showInterstitialAd(
+      onComplete: _openTimerSetPage,
+    );
+  }
+
+  void _openTimerSetPage() {
+    if (!mounted) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
+      PageRouteBuilder<void>(
+        transitionDuration: const Duration(milliseconds: 260),
+        reverseTransitionDuration: const Duration(milliseconds: 200),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const TimerSetPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+
+          return FadeTransition(
+            opacity: curvedAnimation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.08, 0),
+                end: Offset.zero,
+              ).animate(curvedAnimation),
+              child: child,
+            ),
+          );
+        },
+      ),
+      (route) => route.isFirst,
+    );
+  }
+
   void _stopRunOnce() {
     if (_stopCalled) return;
 
@@ -54,32 +99,6 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(
-      timerProvider.select(
-        (timer) => (
-          isFinished: timer.isFinished,
-          finishRemainingMs: timer.finishRemainingMs,
-        ),
-      ),
-      (_, next) {
-        if (_autoPopped ||
-            _stopCalled ||
-            !next.isFinished ||
-            next.finishRemainingMs > 0) {
-          return;
-        }
-
-        _autoPopped = true;
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted || _stopCalled || !Navigator.canPop(context)) return;
-
-          _stopRunOnce();
-          Navigator.pop(context);
-        });
-      },
-    );
-
     final appBarTitle = ref.watch(
       timerProvider.select(
         (timer) =>
@@ -106,7 +125,7 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
               const SizedBox(height: 24),
               const _ProgressSection(),
               const Spacer(),
-              _RunActions(onDone: _leaveRunPage),
+              _RunActions(onDone: _handleDone),
               const SizedBox(height: 50),
             ],
           ),

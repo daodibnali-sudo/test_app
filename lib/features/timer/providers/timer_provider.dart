@@ -667,10 +667,10 @@ class TimerNotifier extends Notifier<TimerState> {
     _resetCountdownBeep();
 
     state = state.copyWith(
-      isRunning: true,
+      isRunning: false,
       isFinished: true,
       remainingMs: 0,
-      finishRemainingMs: 3000,
+      finishRemainingMs: 0,
     );
 
     if (state.allowVibration) {
@@ -685,7 +685,9 @@ class TimerNotifier extends Notifier<TimerState> {
     await _sounds.speak('Good work');
     if (!_isCurrentRun(generation)) return;
 
-    _startTicker();
+    _timer?.cancel();
+    _timer = null;
+    _lastTick = null;
   }
 
   // ---------------------------------------------------------------------------
