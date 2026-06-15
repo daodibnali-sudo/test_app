@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:chelnok_vibrate/chelnok_vibrate.dart';
 import 'package:flutter/services.dart';
-import 'package:vibration/vibration.dart';
 
 class TimerHapticService {
   static const List<int> _victoryPattern = [0, 120, 120, 120, 160, 600];
@@ -28,7 +28,7 @@ class TimerHapticService {
     ++_generation;
 
     try {
-      await Vibration.cancel();
+      await ChelnokVibrate.cancel();
     } on PlatformException {
       // The fallback Flutter haptics cannot be cancelled mid-impact.
     } on MissingPluginException {
@@ -47,8 +47,7 @@ class TimerHapticService {
 
   Future<bool> _canUseCustomPattern() async {
     try {
-      return await Vibration.hasVibrator() &&
-          await Vibration.hasCustomVibrationsSupport();
+      return await ChelnokVibrate.hasVibrator();
     } on PlatformException {
       return false;
     } on MissingPluginException {
@@ -66,7 +65,9 @@ class TimerHapticService {
     if (!_isCurrent(generation)) return;
 
     try {
-      await Vibration.vibrate(pattern: _victoryPattern);
+      await ChelnokVibrate.vibratePattern(
+        _victoryPattern.map((ms) => Duration(milliseconds: ms)).toList(),
+      );
       await _pause(
         generation,
         _victoryPattern.fold<int>(0, (total, ms) => total + ms),

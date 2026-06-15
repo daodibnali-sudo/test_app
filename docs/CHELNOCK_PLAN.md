@@ -177,7 +177,7 @@ Because the first risk is product feel, not cloud sync. Build a timer people lov
 
 ### Phase 1: Clean Foundation
 
-- [ ] Rename app identity from `test_app` to Chelnock in visible UI.
+- [ ] Rename app identity to Chelnock in visible UI.
 - [ ] Split `lib/main.dart` into app, theme, and timer screen files.
 - [ ] Create `TimerPhase` enum.
 - [ ] Create `RoundTimerConfig` model.
@@ -269,4 +269,3 @@ Reason: a clean static screen teaches Flutter layout without mixing in timer com
 - At least three presets exist.
 - Completed sessions can be seen in local history.
 - Code is split enough that a beginner can explain each file.
-

@@ -1,3 +1,3 @@
-# test_app
+# Chelnok Boxing Timer
 
 A new Flutter project.

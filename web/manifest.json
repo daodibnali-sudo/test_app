@@ -1,11 +1,11 @@
 {
-    "name": "test_app",
-    "short_name": "test_app",
+    "name": "Chelnok Boxing Timer",
+    "short_name": "Chelnok",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Chelnok Boxing Timer.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

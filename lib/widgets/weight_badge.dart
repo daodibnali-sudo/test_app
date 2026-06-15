@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/features/timer/pages/home_page.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
-//import 'package:test_app/test.dart';
+import 'package:chelnok_boxing_timer/features/timer/pages/home_page.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
+//import 'package:chelnok_boxing_timer/test.dart';
 
 Widget weightBadge() {
   return Container(

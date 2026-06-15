@@ -18,14 +18,27 @@ class TimerSoundService {
     return !_isDisposed && generation == _generation;
   }
 
-  Future<void> playBellRestarting() async {
+  Future<void> playBellRestarting({String? announcement}) async {
     final generation = ++_generation;
     ++_announcementGeneration;
 
     await _stopPlayersAndTts();
     if (!_isCurrent(generation)) return;
 
+    final completed = _bellPlayer.onPlayerComplete.first;
     await _bellPlayer.play(AssetSource('sounds/bell_twice.mp3'));
+
+    if (announcement == null || announcement.isEmpty) return;
+
+    await Future.any([
+      completed,
+      Future<void>.delayed(const Duration(milliseconds: 750)),
+      _waitForCancellation(generation),
+    ]);
+
+    if (!_isCurrent(generation)) return;
+
+    await _tts.speak(announcement);
   }
 
   Future<void> playFinishThreeBells() async {

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/features/timer/data/timer_presets.dart';
-import 'package:test_app/features/timer/models/timer_custom_preset.dart';
-import 'package:test_app/features/timer/models/timer_quick_preset.dart';
-import 'package:test_app/features/timer/providers/timer_provider.dart';
-import 'package:test_app/features/timer/widgets/app_bar_timer.dart';
-import 'package:test_app/features/timer/widgets/preset_actions_sheet.dart';
-import 'package:test_app/router/open_timer.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
-import 'package:test_app/widgets/button.dart';
-import 'package:test_app/widgets/scroll_cards.dart';
+import 'package:chelnok_boxing_timer/features/timer/data/timer_presets.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_custom_preset.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_quick_preset.dart';
+import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/app_bar_timer.dart';
+import 'package:chelnok_boxing_timer/features/timer/widgets/preset_actions_sheet.dart';
+import 'package:chelnok_boxing_timer/router/open_timer.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
+import 'package:chelnok_boxing_timer/widgets/button.dart';
+import 'package:chelnok_boxing_timer/widgets/scroll_cards.dart';
 
 enum PresetListType { defaultPresets, customPresets }
 

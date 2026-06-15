@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:test_app/core/ads/interstitial_ad_service.dart';
-import 'package:test_app/features/timer/pages/home_page.dart';
-import 'package:test_app/features/timer/providers/timer_provider.dart';
-import 'package:test_app/shared/theme/app_colors.dart';
-import 'package:test_app/shared/theme/app_fonts.dart';
+import 'package:chelnok_boxing_timer/core/ads/interstitial_ad_service.dart';
+import 'package:chelnok_boxing_timer/features/timer/pages/home_page.dart';
+import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   await MobileAds.instance.initialize();
   InterstitialAdService.instance.loadInterstitialAd();
   SystemChrome.setSystemUIOverlayStyle(

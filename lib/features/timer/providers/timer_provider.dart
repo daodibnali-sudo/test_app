@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:test_app/features/timer/data/timer_preset_storage.dart';
-import 'package:test_app/features/timer/logic/timer_state.dart';
-import 'package:test_app/features/timer/models/timer_custom_preset.dart';
-import 'package:test_app/features/timer/models/timer_quick_preset.dart';
-import 'package:test_app/features/timer/services/timer_haptic_service.dart';
-import 'package:test_app/features/timer/services/timer_sound_services.dart';
+import 'package:chelnok_boxing_timer/features/timer/data/timer_preset_storage.dart';
+import 'package:chelnok_boxing_timer/features/timer/logic/timer_state.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_custom_preset.dart';
+import 'package:chelnok_boxing_timer/features/timer/models/timer_quick_preset.dart';
+import 'package:chelnok_boxing_timer/features/timer/services/timer_haptic_service.dart';
+import 'package:chelnok_boxing_timer/features/timer/services/timer_sound_services.dart';
 
 final timerProvider = NotifierProvider<TimerNotifier, TimerState>(
   TimerNotifier.new,
@@ -99,9 +99,20 @@ class TimerNotifier extends Notifier<TimerState> {
     _resetTimedAnnouncements();
   }
 
+  String _phaseStartAnnouncement() {
+    if (state.isCustomWorkout) {
+      final blockName = state.currentBlock?.name.toLowerCase() ?? '';
+      return blockName.contains('rest') ? 'Rest' : 'Work';
+    }
+
+    return state.isWork ? 'Work' : 'Rest';
+  }
+
   void _playPhaseBell() {
     if (!state.allowSound) return;
-    unawaited(_sounds.playBellRestarting());
+    unawaited(
+      _sounds.playBellRestarting(announcement: _phaseStartAnnouncement()),
+    );
   }
 
   void _announcePreparationStart(int generation) {
@@ -164,7 +175,7 @@ class TimerNotifier extends Notifier<TimerState> {
     final phaseGeneration = _phaseGeneration;
     final runGeneration = _runGeneration;
     final delay = delayForBell
-        ? const Duration(milliseconds: 750)
+        ? const Duration(milliseconds: 1600)
         : Duration.zero;
 
     if (remainingMs != 60000 && remainingMs != 30000 && remainingMs != 10000) {

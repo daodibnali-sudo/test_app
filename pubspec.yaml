@@ -1,5 +1,5 @@
-name: test_app
-description: "A new Flutter project."
+name: chelnok_boxing_timer
+description: "Chelnok Boxing Timer."
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -16,7 +16,8 @@ dependencies:
   google_mobile_ads: ^9.0.0
   shared_preferences: ^2.5.5
   url_launcher: ^6.3.2
-  vibration: ^3.1.8
+  chelnok_vibrate:
+    path: packages/chelnok_vibrate
 
 dev_dependencies:
   flutter_test:
