@@ -1,7 +1,8 @@
 name: chelnok_boxing_timer
 description: "Chelnok Boxing Timer."
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.1.1+3
+
 
 environment:
   sdk: ^3.12.0

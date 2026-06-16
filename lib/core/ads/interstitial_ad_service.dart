@@ -10,6 +10,7 @@ class InterstitialAdService {
   static final InterstitialAdService instance = InterstitialAdService._();
 
   InterstitialAd? _interstitialAd;
+  bool _isInitialized = false;
   bool _isLoading = false;
 
   String? get _adUnitId {
@@ -17,26 +18,62 @@ class InterstitialAdService {
     return null;
   }
 
+  Future<void> initialize() async {
+    if (_isInitialized || _adUnitId == null) return;
+
+    try {
+      await MobileAds.instance.initialize();
+      _isInitialized = true;
+      loadInterstitialAd();
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'ads',
+          context: ErrorDescription('initializing Google Mobile Ads'),
+        ),
+      );
+    }
+  }
+
   void loadInterstitialAd() {
     final adUnitId = _adUnitId;
-    if (adUnitId == null || _isLoading || _interstitialAd != null) return;
+    if (!_isInitialized ||
+        adUnitId == null ||
+        _isLoading ||
+        _interstitialAd != null) {
+      return;
+    }
 
     _isLoading = true;
 
-    InterstitialAd.load(
-      adUnitId: adUnitId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          _isLoading = false;
-          _interstitialAd = ad;
-        },
-        onAdFailedToLoad: (_) {
-          _isLoading = false;
-          _interstitialAd = null;
-        },
-      ),
-    );
+    try {
+      InterstitialAd.load(
+        adUnitId: adUnitId,
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (ad) {
+            _isLoading = false;
+            _interstitialAd = ad;
+          },
+          onAdFailedToLoad: (_) {
+            _isLoading = false;
+            _interstitialAd = null;
+          },
+        ),
+      );
+    } catch (error, stackTrace) {
+      _isLoading = false;
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'ads',
+          context: ErrorDescription('loading an interstitial ad'),
+        ),
+      );
+    }
   }
 
   void showInterstitialAd({VoidCallback? onComplete}) {
