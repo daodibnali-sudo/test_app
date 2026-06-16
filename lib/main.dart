@@ -7,7 +7,6 @@ import 'package:chelnok_boxing_timer/core/ads/interstitial_ad_service.dart';
 import 'package:chelnok_boxing_timer/features/timer/pages/home_page.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
-import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -91,12 +90,10 @@ class _StartupView extends StatelessWidget {
           builder: (context, scale, child) {
             return Transform.scale(scale: scale, child: child);
           },
-          child: Text(
-            'Workout',
-            style: AppTextStyles.heading.copyWith(
-              color: AppColors.cyanLight,
-              fontSize: 34,
-            ),
+          child: Image.asset(
+            'assets/images/logoPNGthousand.png',
+            width: 180,
+            fit: BoxFit.contain,
           ),
         ),
       ),
