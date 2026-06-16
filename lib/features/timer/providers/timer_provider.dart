@@ -30,6 +30,7 @@ class TimerNotifier extends Notifier<TimerState> {
   int _phaseGeneration = 0;
   bool _minuteAnnouncementFired = false;
   bool _thirtySecAnnouncementFired = false;
+
   bool _tenSecAnnouncementFired = false;
 
   @override

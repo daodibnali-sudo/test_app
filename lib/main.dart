@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:chelnok_boxing_timer/core/ads/interstitial_ad_service.dart';
 import 'package:chelnok_boxing_timer/features/timer/pages/home_page.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
@@ -13,8 +14,7 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
-  await MobileAds.instance.initialize();
-  InterstitialAdService.instance.loadInterstitialAd();
+  unawaited(InterstitialAdService.instance.initialize());
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: AppColors.blackBg,
