@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chelnok_boxing_timer/features/legal/data/legal_documents.dart';
 import 'package:chelnok_boxing_timer/features/legal/pages/legal_document_page.dart';
+import 'package:chelnok_boxing_timer/features/settings/localization/app_strings.dart';
+import 'package:chelnok_boxing_timer/features/settings/models/app_language.dart';
+import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
@@ -10,7 +13,7 @@ import 'package:chelnok_boxing_timer/widgets/switch.dart';
 Future<void> showTimerSettingsSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
-    backgroundColor: AppColors.blackSurface,
+    backgroundColor: Colors.transparent,
     showDragHandle: true,
     builder: (sheetContext) => _TimerSettingsSheet(rootContext: context),
   );
@@ -31,85 +34,119 @@ class _TimerSettingsSheet extends ConsumerWidget {
         ),
       ),
     );
+    final appSettings = ref.watch(appSettingsProvider);
+    AppColors.setThemeMode(appSettings.themeMode);
+
+    final appSettingsNotifier = ref.read(appSettingsProvider.notifier);
+    final strings = ref.watch(appStringsProvider);
     final notifier = ref.read(timerProvider.notifier);
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Settings',
-              style: AppTextStyles.heading.copyWith(fontSize: 26),
-            ),
-            const SizedBox(height: 10),
-            _SettingSwitchRow(
-              label: 'Allow sound',
-              value: settings.allowSound,
-              onChanged: notifier.toggleSound,
-            ),
-            _SettingSwitchRow(
-              label: 'Allow vibrations',
-              value: settings.allowVibration,
-              onChanged: notifier.toggleVibration,
-            ),
-            const SizedBox(height: 14),
-            Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.cyanDeep.withAlpha(120),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'LEGAL',
-              style: AppTextStyles.title.copyWith(
-                color: AppColors.textSecondary,
-                letterSpacing: 0.8,
+    return Material(
+      color: AppColors.blackSurface,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                strings.text('settings'),
+                style: AppTextStyles.heading.copyWith(fontSize: 26),
               ),
-            ),
-            const SizedBox(height: 8),
-            _LegalNavigationRow(
-              icon: Icons.privacy_tip_outlined,
-              title: 'Privacy Policy',
-              onTap: () => _openDocument(
-                context,
-                LegalDocumentPage(
-                  title: 'Privacy Policy',
-                  subtitle: 'Effective date: June 12, 2026',
-                  sections: privacyPolicySections,
-                  externalUrl: privacyPolicyUrl,
+              const SizedBox(height: 10),
+              _SettingsSectionLabel(label: strings.text('theme')),
+              const SizedBox(height: 8),
+              _ChoiceRow<ThemeMode>(
+                value: appSettings.themeMode,
+                options: [
+                  _ChoiceOption(
+                    value: ThemeMode.dark,
+                    label: strings.text('dark'),
+                  ),
+                  _ChoiceOption(
+                    value: ThemeMode.light,
+                    label: strings.text('light'),
+                  ),
+                ],
+                onChanged: appSettingsNotifier.setThemeMode,
+              ),
+              const SizedBox(height: 14),
+              _SettingsSectionLabel(label: strings.text('language')),
+              const SizedBox(height: 8),
+              _ChoiceRow<AppLanguage>(
+                value: appSettings.language,
+                options: AppLanguage.values
+                    .map(
+                      (language) =>
+                          _ChoiceOption(value: language, label: language.label),
+                    )
+                    .toList(),
+                onChanged: appSettingsNotifier.setLanguage,
+              ),
+              const SizedBox(height: 14),
+              _SettingSwitchRow(
+                label: strings.text('allowSound'),
+                value: settings.allowSound,
+                onChanged: notifier.toggleSound,
+              ),
+              _SettingSwitchRow(
+                label: strings.text('allowVibrations'),
+                value: settings.allowVibration,
+                onChanged: notifier.toggleVibration,
+              ),
+              const SizedBox(height: 14),
+              Divider(height: 1, thickness: 1, color: AppColors.borderSoft),
+              const SizedBox(height: 16),
+              Text(
+                strings.text('legal'),
+                style: AppTextStyles.title.copyWith(
+                  color: AppColors.textSecondary,
+                  letterSpacing: 0.8,
                 ),
               ),
-            ),
-            _LegalNavigationRow(
-              icon: Icons.description_outlined,
-              title: 'Terms of Use',
-              onTap: () => _openDocument(
-                context,
-                LegalDocumentPage(
-                  title: 'Terms of Use',
-                  subtitle: 'Effective date: June 12, 2026',
-                  sections: termsOfUseSections,
-                  externalUrl: termsOfUseUrl,
+              const SizedBox(height: 8),
+              _LegalNavigationRow(
+                icon: Icons.privacy_tip_outlined,
+                title: 'Privacy Policy',
+                onTap: () => _openDocument(
+                  context,
+                  LegalDocumentPage(
+                    title: 'Privacy Policy',
+                    subtitle: 'Effective date: June 12, 2026',
+                    sections: privacyPolicySections,
+                    externalUrl: privacyPolicyUrl,
+                  ),
                 ),
               ),
-            ),
-            _LegalNavigationRow(
-              icon: Icons.info_outline,
-              title: 'About Chelnok',
-              onTap: () => _openDocument(
-                context,
-                const LegalDocumentPage(
-                  title: 'About Chelnok',
-                  subtitle: 'Built for the rounds that matter.',
-                  sections: aboutChelnokSections,
-                  showContactButton: true,
+              _LegalNavigationRow(
+                icon: Icons.description_outlined,
+                title: 'Terms of Use',
+                onTap: () => _openDocument(
+                  context,
+                  LegalDocumentPage(
+                    title: 'Terms of Use',
+                    subtitle: 'Effective date: June 12, 2026',
+                    sections: termsOfUseSections,
+                    externalUrl: termsOfUseUrl,
+                  ),
                 ),
               ),
-            ),
-          ],
+              _LegalNavigationRow(
+                icon: Icons.info_outline,
+                title: 'About Chelnok',
+                onTap: () => _openDocument(
+                  context,
+                  const LegalDocumentPage(
+                    title: 'About Chelnok',
+                    subtitle: 'Built for the rounds that matter.',
+                    sections: aboutChelnokSections,
+                    showContactButton: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -141,6 +178,65 @@ class _TimerSettingsSheet extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _SettingsSectionLabel extends StatelessWidget {
+  const _SettingsSectionLabel({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: AppTextStyles.title.copyWith(
+        color: AppColors.textSecondary,
+        letterSpacing: 0.8,
+      ),
+    );
+  }
+}
+
+class _ChoiceOption<T> {
+  const _ChoiceOption({required this.value, required this.label});
+
+  final T value;
+  final String label;
+}
+
+class _ChoiceRow<T> extends StatelessWidget {
+  const _ChoiceRow({
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final T value;
+  final List<_ChoiceOption<T>> options;
+  final ValueChanged<T> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final option in options)
+          ChoiceChip(
+            label: Text(option.label),
+            selected: option.value == value,
+            onSelected: (_) => onChanged(option.value),
+            selectedColor: AppColors.cyanDeep.withAlpha(170),
+            backgroundColor: AppColors.blackBg.withAlpha(120),
+            labelStyle: AppTextStyles.title.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 14,
+            ),
+            side: BorderSide(color: AppColors.borderSoft),
+          ),
+      ],
     );
   }
 }
@@ -213,7 +309,7 @@ class _LegalNavigationRow extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                Icon(Icons.chevron_right, color: AppColors.textSecondary),
               ],
             ),
           ),

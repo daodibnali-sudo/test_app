@@ -13,8 +13,14 @@ class OutlinedSection extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.blackSurface,
-        border: Border.all(color: AppColors.cyanLight.withAlpha(150), width: 2),
+        border: Border.all(
+          color: AppColors.isLight
+              ? AppColors.borderSoft
+              : AppColors.textPrimary.withAlpha(150),
+          width: AppColors.isLight ? 1 : 2,
+        ),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: AppColors.cardShadows,
       ),
       child: child,
     );

@@ -105,11 +105,11 @@ InputDecoration _inputDecoration(String label) {
     fillColor: AppColors.blackSurface,
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: AppColors.cyanDeep.withAlpha(120)),
+      borderSide: BorderSide(color: AppColors.controlBorder),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: AppColors.cyanLight),
+      borderSide: BorderSide(color: AppColors.controlBorder),
     ),
   );
 }

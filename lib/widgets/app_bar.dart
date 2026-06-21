@@ -18,14 +18,10 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: () => _showHomeMenu(context),
         icon: Icon(Icons.menu, color: AppColors.textPrimary),
       ),
-      
+
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(0),
-        child: Divider(
-          height: 0,
-          thickness: 0,
-          color: AppColors.textDisabled.withAlpha(200),
-        ),
+        child: Divider(height: 0, thickness: 0, color: AppColors.borderSoft),
       ),
     );
   }
@@ -45,6 +41,9 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 _MenuTile(
                   icon: Icons.add,
                   title: 'Set a new timer',
+                  iconColor: AppColors.textPrimary,
+                  textColor: AppColors.textPrimary,
+                  backgroundColor: Colors.transparent,
                   onTap: () {
                     Navigator.pop(sheetContext);
                     openTimerSetPage(context);
@@ -53,6 +52,9 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 _MenuTile(
                   icon: Icons.playlist_add,
                   title: 'Preset set',
+                  iconColor: AppColors.textPrimary,
+                  textColor: AppColors.textPrimary,
+                  backgroundColor: Colors.transparent,
                   onTap: () {
                     Navigator.pop(sheetContext);
                     openPresetBuilderPage(context);
@@ -61,6 +63,9 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 _MenuTile(
                   icon: Icons.settings,
                   title: 'Settings',
+                  iconColor: AppColors.textPrimary,
+                  textColor: AppColors.textPrimary,
+
                   onTap: () {
                     Navigator.pop(sheetContext);
                     showTimerSettingsSheet(context);
@@ -80,19 +85,28 @@ class _MenuTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.onTap,
+    this.iconColor,
+    this.textColor,
+    this.backgroundColor,
   });
 
   final IconData icon;
   final String title;
   final VoidCallback onTap;
+  final Color? iconColor;
+  final Color? textColor;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.cyanLight),
+      tileColor: backgroundColor,
+      leading: Icon(icon, color: iconColor ?? AppColors.cyanLight),
       title: Text(
         title,
-        style: AppTextStyles.title.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.title.copyWith(
+          color: textColor ?? AppColors.textPrimary,
+        ),
       ),
       onTap: onTap,
     );

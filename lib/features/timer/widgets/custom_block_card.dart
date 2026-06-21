@@ -36,7 +36,7 @@ class CustomBlockCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: isRestSuggestion
             ? null
-            : Border.all(color: AppColors.cyanDeep.withAlpha(100)),
+            : Border.all(color: AppColors.controlBorder),
       ),
       child: Row(
         children: [
@@ -131,7 +131,7 @@ class _DashedBorderPainter extends CustomPainter {
     const dashWidth = 8.0;
     const dashGap = 5.0;
     final paint = Paint()
-      ..color = AppColors.cyanDeep.withAlpha(180)
+      ..color = AppColors.controlBorder
       ..strokeWidth = 1.4
       ..style = PaintingStyle.stroke;
 

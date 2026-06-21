@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 
 class ChelnockSwitch extends StatefulWidget {
   const ChelnockSwitch({
@@ -61,13 +62,13 @@ class _ChelnockSwitchState extends State<ChelnockSwitch> {
         padding: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 2.5),
         decoration: BoxDecoration(
           color: isEnabled && widget.value
-              ? const Color(0xFF00D6C9)
-              : const Color(0xFF2B2D33),
+              ? AppColors.cyanLight
+              : AppColors.blackShadow,
           borderRadius: BorderRadius.circular(999),
           boxShadow: [
             if (isEnabled && widget.value)
               BoxShadow(
-                color: const Color(0xFF00D6C9).withValues(alpha: 0.35),
+                color: AppColors.cyanLight.withValues(alpha: 0.35),
                 blurRadius: 16,
                 spreadRadius: 1,
               ),
@@ -150,7 +151,7 @@ class _LiquidGlassThumb extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 Colors.white.withValues(alpha: 0.95),
-                const Color(0xFF00D6C9).withValues(alpha: 0.70),
+                AppColors.cyanLight.withValues(alpha: 0.70),
                 Colors.white.withValues(alpha: 0.25),
                 Colors.black.withValues(alpha: 0.10),
               ],
@@ -158,7 +159,7 @@ class _LiquidGlassThumb extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00D6C9).withValues(alpha: 0.28),
+                color: AppColors.cyanLight.withValues(alpha: 0.28),
                 blurRadius: 16,
                 spreadRadius: -1,
               ),

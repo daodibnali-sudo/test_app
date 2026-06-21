@@ -61,9 +61,7 @@ class PresetScrollList extends StatelessWidget {
                 ? null
                 : () => onBuiltInPresetLongPress!(preset),
             backgroundColor: AppColors.blackSurface,
-            borderColor: selected
-                ? AppColors.cyanLight
-                : AppColors.cyanDeep.withAlpha(120),
+            borderColor: selected ? AppColors.cyanLight : AppColors.borderSoft,
             iconColor: selected ? AppColors.cyanLight : AppColors.textSecondary,
             titleStyle: AppTextStyles.body.copyWith(
               color: selected ? AppColors.cyanLight : AppColors.textPrimary,

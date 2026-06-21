@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 
 class ScrollCard extends StatelessWidget {
   const ScrollCard({
@@ -83,9 +84,10 @@ class ScrollCard extends StatelessWidget {
               padding: padding,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(radius),
+                boxShadow: AppColors.cardShadows,
                 border: Border.all(
                   color: effectiveBorderColor ?? Colors.transparent,
-                  width: borderWidth,
+                  width: AppColors.isLight ? 1 : borderWidth,
                 ),
               ),
               child: Column(

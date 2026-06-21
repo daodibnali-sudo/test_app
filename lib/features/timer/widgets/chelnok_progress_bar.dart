@@ -11,9 +11,9 @@ class ChelnokProgressBar extends StatelessWidget {
     required this.progressColor,
     this.size = 280,
     this.strokeWidth = 14,
-    this.trackColor = AppColors.blackSurface,
-    this.glassColor = const Color(0x22FFFFFF),
-    this.borderColor = const Color(0x33FFFFFF),
+    this.trackColor,
+    this.glassColor,
+    this.borderColor,
     this.borderWidth = 1.2,
   });
 
@@ -23,10 +23,10 @@ class ChelnokProgressBar extends StatelessWidget {
 
   final double size;
   final double strokeWidth;
-  final Color trackColor;
+  final Color? trackColor;
 
-  final Color glassColor;
-  final Color borderColor;
+  final Color? glassColor;
+  final Color? borderColor;
   final double borderWidth;
 
   @override
@@ -34,6 +34,19 @@ class ChelnokProgressBar extends StatelessWidget {
     final progress = totalMs == 0
         ? 0.0
         : (remainingMs / totalMs).clamp(0.0, 1.0);
+
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
+    final resolvedGlassColor =
+        glassColor ?? (isLight ? Colors.transparent : const Color(0x22FFFFFF));
+
+    final resolvedBorderColor =
+        borderColor ??
+        (isLight ? AppColors.lightBorder : const Color(0x33FFFFFF));
+
+    final resolvedTrackColor =
+        trackColor ??
+        (isLight ? const Color(0xFFE5E7EB) : AppColors.blackSurface);
 
     return TweenAnimationBuilder<double>(
       tween: Tween(end: progress),
@@ -47,15 +60,19 @@ class ChelnokProgressBar extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: glassColor,
-                border: Border.all(color: borderColor, width: borderWidth),
+                color: resolvedGlassColor,
+                border: Border.all(
+                  color: resolvedBorderColor,
+                  width: borderWidth,
+                ),
               ),
               child: CustomPaint(
                 painter: _ChelnokProgressPainter(
                   progress: animatedProgress,
                   progressColor: progressColor,
-                  trackColor: trackColor,
+                  trackColor: resolvedTrackColor,
                   strokeWidth: strokeWidth,
+                  isLight: isLight,
                 ),
                 child: child,
               ),
@@ -74,18 +91,19 @@ class _ChelnokProgressPainter extends CustomPainter {
     required this.progressColor,
     required this.trackColor,
     required this.strokeWidth,
+    required this.isLight,
   });
 
   final double progress;
   final Color progressColor;
   final Color trackColor;
   final double strokeWidth;
+  final bool isLight;
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
     final radius = (size.width - strokeWidth) / 2;
-
     final rect = Rect.fromCircle(center: center, radius: radius);
 
     final trackPaint = Paint()
@@ -95,7 +113,14 @@ class _ChelnokProgressPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final progressPaint = Paint()
-      ..shader = SweepGradient(
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    if (isLight) {
+      progressPaint.color = progressColor;
+    } else {
+      progressPaint.shader = SweepGradient(
         startAngle: -pi / 2,
         endAngle: pi * 1.5,
         colors: [
@@ -104,10 +129,8 @@ class _ChelnokProgressPainter extends CustomPainter {
           Colors.white.withAlpha(220),
           progressColor,
         ],
-      ).createShader(rect)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
+      ).createShader(rect);
+    }
 
     const startAngle = -pi / 2;
     final sweepAngle = 2 * pi * progress;
@@ -115,12 +138,14 @@ class _ChelnokProgressPainter extends CustomPainter {
     canvas.drawCircle(center, radius, trackPaint);
     canvas.drawArc(rect, startAngle, sweepAngle, false, progressPaint);
 
-    final highlightPaint = Paint()
-      ..color = Colors.white.withAlpha(38)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4;
+    if (!isLight) {
+      final highlightPaint = Paint()
+        ..color = Colors.white.withAlpha(38)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4;
 
-    canvas.drawCircle(center, radius - strokeWidth, highlightPaint);
+      canvas.drawCircle(center, radius - strokeWidth, highlightPaint);
+    }
   }
 
   @override
@@ -128,6 +153,7 @@ class _ChelnokProgressPainter extends CustomPainter {
     return oldDelegate.progress != progress ||
         oldDelegate.progressColor != progressColor ||
         oldDelegate.trackColor != trackColor ||
-        oldDelegate.strokeWidth != strokeWidth;
+        oldDelegate.strokeWidth != strokeWidth ||
+        oldDelegate.isLight != isLight;
   }
 }

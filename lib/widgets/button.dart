@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -236,6 +237,9 @@ class AppButton extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: enabled ? gradient : null,
             borderRadius: BorderRadius.circular(radius),
+            boxShadow: enabled && filled && AppColors.isLight
+                ? AppColors.cardShadows
+                : null,
           ),
           child: button,
         ),

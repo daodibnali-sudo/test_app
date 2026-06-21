@@ -7,34 +7,34 @@ abstract final class AppFonts {
 }
 
 abstract final class AppTextStyles {
-  static const TextStyle timer = TextStyle(
+  static TextStyle get timer => const TextStyle(
     fontFamily: AppFonts.alata,
     fontSize: 72,
     fontWeight: FontWeight.w400,
     letterSpacing: -2,
   );
 
-  static const TextStyle heading = TextStyle(
+  static TextStyle get heading => TextStyle(
     color: AppColors.textPrimary,
     fontFamily: AppFonts.alata,
     fontSize: 28,
     fontWeight: FontWeight.w400,
   );
 
-  static const TextStyle title = TextStyle(
+  static TextStyle get title => TextStyle(
     color: AppColors.textSecondary,
     fontFamily: AppFonts.inter,
     fontSize: 14,
     fontWeight: FontWeight.w600,
   );
 
-  static const TextStyle body = TextStyle(
+  static TextStyle get body => const TextStyle(
     fontFamily: AppFonts.inter,
     fontSize: 16,
     fontWeight: FontWeight.w400,
   );
 
-  static const TextStyle label = TextStyle(
+  static TextStyle get label => TextStyle(
     color: AppColors.textSecondary,
     fontFamily: AppFonts.alata,
     fontSize: 13,

@@ -27,6 +27,7 @@ class TimerState {
   final int finishRemainingMs;
   final bool allowSound;
   final bool allowVibration;
+  final bool keepScreenAwake;
 
   int get totalMs => isCustomWorkout
       ? preparationMs +
@@ -85,6 +86,7 @@ class TimerState {
     required this.finishRemainingMs,
     required this.allowSound,
     required this.allowVibration,
+    required this.keepScreenAwake,
   });
 
   factory TimerState.initial() {
@@ -108,6 +110,7 @@ class TimerState {
       finishRemainingMs: 3000,
       allowSound: true,
       allowVibration: true,
+      keepScreenAwake: false,
     );
   }
 
@@ -136,6 +139,7 @@ class TimerState {
     int? finishRemainingMs,
     bool? allowSound,
     bool? allowVibration,
+    bool? keepScreenAwake,
     bool clearSelectedPreset = false,
     bool clearSelectedCustomPreset = false,
   }) {
@@ -169,6 +173,7 @@ class TimerState {
       finishRemainingMs: finishRemainingMs ?? this.finishRemainingMs,
       allowSound: allowSound ?? this.allowSound,
       allowVibration: allowVibration ?? this.allowVibration,
+      keepScreenAwake: keepScreenAwake ?? this.keepScreenAwake,
     );
   }
 }

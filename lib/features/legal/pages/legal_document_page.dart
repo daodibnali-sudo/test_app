@@ -55,7 +55,7 @@ class LegalDocumentPage extends StatelessWidget {
         backgroundColor: AppColors.blackBg,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_outlined,
             color: AppColors.textPrimary,
           ),
@@ -134,7 +134,7 @@ class LegalDocumentPage extends StatelessWidget {
                   leading: const Icon(Icons.mail_outline),
                   backgroundColor: AppColors.cyanLight,
                   iconColor: AppColors.blackBg,
-                  textStyle: const TextStyle(
+                  textStyle: TextStyle(
                     color: AppColors.blackBg,
                     fontWeight: FontWeight.w700,
                     fontSize: 16,

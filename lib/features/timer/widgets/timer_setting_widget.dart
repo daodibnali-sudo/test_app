@@ -54,16 +54,12 @@ class TimeSettingRow extends StatelessWidget {
         IconButton(
           onPressed: onMinus,
           highlightColor: AppColors.error,
-          icon: const Icon(
-            Icons.remove,
-            color: AppColors.textPrimary,
-            size: 45,
-          ),
+          icon: Icon(Icons.remove, color: AppColors.textPrimary, size: 45),
         ),
         IconButton(
           onPressed: onPlus,
           highlightColor: AppColors.cyanLight,
-          icon: const Icon(Icons.add, color: AppColors.textPrimary, size: 45),
+          icon: Icon(Icons.add, color: AppColors.textPrimary, size: 45),
         ),
       ],
     );

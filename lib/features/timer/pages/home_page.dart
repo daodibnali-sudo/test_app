@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:chelnok_boxing_timer/features/settings/localization/app_strings.dart';
+import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/pages/preset_list_page.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/preset_actions_sheet.dart';
@@ -24,6 +26,11 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(
+      appSettingsProvider.select((settings) => settings.themeMode),
+    );
+    AppColors.setThemeMode(themeMode);
+
     final timer = ref.watch(
       timerProvider.select(
         (timer) => (
@@ -35,6 +42,7 @@ class HomePage extends ConsumerWidget {
       ),
     );
     final timerNotifier = ref.read(timerProvider.notifier);
+    final strings = ref.watch(appStringsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.blackBg,
@@ -46,11 +54,8 @@ class HomePage extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               //Align(alignment: Alignment.topRight, child: weightBadge()),
-              Text('Hey, $userName 🥊🔥', style: AppTextStyles.heading),
-              Text(
-                'Ready to push your limits today?',
-                style: AppTextStyles.label,
-              ),
+              Text(strings.text('greetings'), style: AppTextStyles.heading),
+              Text(strings.text('ready'), style: AppTextStyles.label),
 
               const SizedBox(height: 15),
 
@@ -59,7 +64,7 @@ class HomePage extends ConsumerWidget {
                 child: Divider(
                   height: 0,
                   thickness: 0,
-                  color: AppColors.textDisabled.withAlpha(200),
+                  color: AppColors.borderSoft,
                 ),
               ),
 
@@ -67,7 +72,8 @@ class HomePage extends ConsumerWidget {
 
               PresetSectionHeader(
                 icon: Icons.flash_on,
-                title: 'Quick Settings workouts:',
+                title: strings.text('quickWorkouts'),
+                seeAllLabel: strings.text('seeAll'),
                 onSeeAll: () => openPresetListPage(
                   context,
                   type: PresetListType.defaultPresets,
@@ -123,34 +129,29 @@ class HomePage extends ConsumerWidget {
               const SizedBox(height: 12),
 
               AppButton(
-                iconColor: AppColors.blackSurface,
-                height: 100,
+                iconColor: AppColors.cyanDeep,
+                height: 64,
                 radius: 16,
-                borderWidth: 2,
-                backgroundColor: AppColors.blackSurface,
-                borderColor: AppColors.cyanDeep.withAlpha(150),
+                borderWidth: AppColors.isLight ? 1 : 2,
+                backgroundColor: AppColors.primaryActionSurface,
+                borderColor: AppColors.isLight
+                    ? AppColors.borderSoft
+                    : AppColors.textPrimary.withAlpha(150),
                 filled: true,
-                subtitle: 'Set a new',
-                text: 'Workout timer',
+                text: strings.text('workoutTimer'),
                 subtitleOnTop: true,
                 textAlign: TextAlign.start,
                 contentAlignment: MainAxisAlignment.start,
-                textSize: 30,
+                textSize: 20,
                 subtitleGap: 0,
                 textStyle: TextStyle(
                   fontFamily: 'alata',
                   color: AppColors.textPrimary.withAlpha(230),
-                  fontSize: 30,
+                  fontSize: 20,
                 ),
-
-                subtitleStyle: AppTextStyles.label.copyWith(
-                  color: AppColors.textSecondary,
-                  fontSize: 15,
-                ),
-                iconBackgroundColor: AppColors.textDisabled.withAlpha(50),
-
-                leading: const Icon(Icons.add, color: AppColors.textPrimary),
-                iconSize: 45,
+                iconBackgroundColor: AppColors.softIconBg,
+                leading: Icon(Icons.add, color: AppColors.cyanDeep),
+                iconSize: 22,
                 onPressed: () => openTimerSetPage(context),
               ),
 
@@ -161,7 +162,7 @@ class HomePage extends ConsumerWidget {
                 child: Divider(
                   height: 0,
                   thickness: 0,
-                  color: AppColors.textDisabled.withAlpha(200),
+                  color: AppColors.borderSoft,
                 ),
               ),
 
@@ -169,7 +170,8 @@ class HomePage extends ConsumerWidget {
 
               PresetSectionHeader(
                 icon: Icons.timer,
-                title: 'Custom presets',
+                title: strings.text('customPresets'),
+                seeAllLabel: strings.text('seeAll'),
                 onSeeAll: () => openPresetListPage(
                   context,
                   type: PresetListType.customPresets,
@@ -213,18 +215,26 @@ class HomePage extends ConsumerWidget {
               const SizedBox(height: 12),
 
               AppButton(
-                iconColor: AppColors.textPrimary,
-                borderColor: AppColors.cyanDeep.withAlpha(150),
-                height: 64,
-                iconBackgroundColor: AppColors.textDisabled.withAlpha(50),
                 textAlign: TextAlign.start,
-
+                contentAlignment: MainAxisAlignment.start,
+                iconColor: AppColors.cyanDeep,
+                borderColor: AppColors.isLight
+                    ? AppColors.borderSoft
+                    : AppColors.textPrimary.withAlpha(150),
+                height: 64,
+                iconBackgroundColor: AppColors.softIconBg,
+                borderWidth: AppColors.isLight ? 1 : 2,
                 radius: 16,
-                backgroundColor: AppColors.blackSurface,
-                text: 'Create Workout',
+                backgroundColor: AppColors.primaryActionSurface,
+                text: strings.text('createWorkout'),
                 textColor: AppColors.textPrimary,
                 leading: const Icon(Icons.playlist_add),
                 onPressed: () => openPresetBuilderPage(context),
+                textStyle: TextStyle(
+                  fontFamily: 'alata',
+                  color: AppColors.textPrimary.withAlpha(230),
+                  fontSize: 20,
+                ),
               ),
 
               const SizedBox(height: 12),
@@ -241,11 +251,13 @@ class PresetSectionHeader extends StatelessWidget {
     super.key,
     required this.icon,
     required this.title,
+    required this.seeAllLabel,
     required this.onSeeAll,
   });
 
   final IconData icon;
   final String title;
+  final String seeAllLabel;
   final VoidCallback onSeeAll;
 
   @override
@@ -267,7 +279,7 @@ class PresetSectionHeader extends StatelessWidget {
         TextButton(
           onPressed: onSeeAll,
           child: Text(
-            'SEE ALL',
+            seeAllLabel,
             style: AppTextStyles.title.copyWith(color: AppColors.cyanLight),
           ),
         ),

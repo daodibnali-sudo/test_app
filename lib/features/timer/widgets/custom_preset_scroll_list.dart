@@ -63,7 +63,7 @@ class CustomPresetScrollList extends StatelessWidget {
                     backgroundColor: AppColors.blackSurface,
                     borderColor: selected
                         ? AppColors.cyanLight
-                        : AppColors.cyanDeep.withAlpha(120),
+                        : AppColors.borderSoft,
                     iconColor: selected
                         ? AppColors.cyanLight
                         : AppColors.textSecondary,

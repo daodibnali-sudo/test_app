@@ -18,7 +18,7 @@ class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: AppColors.blackBg,
       leading: IconButton(
         onPressed: onBack ?? () => Navigator.pop(context),
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back_ios_new_outlined,
           color: AppColors.textPrimary,
         ),
@@ -42,7 +42,7 @@ class TimerAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Divider(
           height: 1,
           thickness: 1,
-          color: AppColors.cyanLight.withAlpha(200),
+          color: AppColors.textPrimary.withAlpha(200),
         ),
       ),
     );

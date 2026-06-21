@@ -9,6 +9,7 @@ class TimerPreset {
     required this.restMs,
     required this.rounds,
     this.preparationMs = 10000,
+    this.keepScreenAwake = false,
   });
 
   final String title;
@@ -19,6 +20,7 @@ class TimerPreset {
   final int restMs;
   final int rounds;
   final int preparationMs;
+  final bool keepScreenAwake;
 
   factory TimerPreset.fromJson(Map<String, dynamic> json) {
     return TimerPreset(
@@ -29,6 +31,7 @@ class TimerPreset {
       restMs: json['restMs'] as int? ?? 60000,
       rounds: json['rounds'] as int? ?? 3,
       preparationMs: json['preparationMs'] as int? ?? 10000,
+      keepScreenAwake: json['keepScreenAwake'] as bool? ?? false,
     );
   }
 
@@ -40,6 +43,7 @@ class TimerPreset {
       'restMs': restMs,
       'rounds': rounds,
       'preparationMs': preparationMs,
+      'keepScreenAwake': keepScreenAwake,
     };
   }
 }

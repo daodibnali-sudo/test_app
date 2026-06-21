@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:chelnok_boxing_timer/features/settings/models/app_language.dart';
 import 'package:chelnok_boxing_timer/features/timer/data/timer_preset_storage.dart';
 import 'package:chelnok_boxing_timer/features/timer/logic/timer_state.dart';
 import 'package:chelnok_boxing_timer/features/timer/models/timer_custom_preset.dart';
@@ -32,6 +33,7 @@ class TimerNotifier extends Notifier<TimerState> {
   bool _thirtySecAnnouncementFired = false;
 
   bool _tenSecAnnouncementFired = false;
+  AppLanguage _language = AppLanguage.english;
 
   @override
   TimerState build() {
@@ -102,11 +104,13 @@ class TimerNotifier extends Notifier<TimerState> {
 
   String _phaseStartAnnouncement() {
     if (state.isCustomWorkout) {
-      final blockName = state.currentBlock?.name.toLowerCase() ?? '';
-      return blockName.contains('rest') ? 'Rest' : 'Work';
+      final blockName = state.currentBlock?.name.trim() ?? '';
+      if (blockName.isNotEmpty) return blockName;
+
+      return _tts('work');
     }
 
-    return state.isWork ? 'Work' : 'Rest';
+    return state.isWork ? _tts('work') : _tts('rest');
   }
 
   void _playPhaseBell() {
@@ -122,7 +126,7 @@ class TimerNotifier extends Notifier<TimerState> {
     _startAnnouncementPlayed = true;
 
     unawaited(
-      _sounds.speak('Get ready').then((_) {
+      _sounds.speak(_tts('getReady')).then((_) {
         if (!_isCurrentRun(generation)) return;
       }),
     );
@@ -215,14 +219,14 @@ class TimerNotifier extends Notifier<TimerState> {
       case 60000:
         if (_minuteAnnouncementFired || !state.minuteAnnouncement) return;
         _minuteAnnouncementFired = true;
-        unawaited(_sounds.playTimedBeepAnnouncement('Minute left'));
+        unawaited(_sounds.playTimedBeepAnnouncement(_tts('minuteLeft')));
         return;
       case 30000:
         if (_thirtySecAnnouncementFired || !state.thirtySecAnnouncement) {
           return;
         }
         _thirtySecAnnouncementFired = true;
-        unawaited(_sounds.playTimedBeepAnnouncement('Thirty seconds left'));
+        unawaited(_sounds.playTimedBeepAnnouncement(_tts('thirtySecondsLeft')));
         return;
       case 10000:
         if (_tenSecAnnouncementFired || !state.tenSecAnnouncement) return;
@@ -271,6 +275,46 @@ class TimerNotifier extends Notifier<TimerState> {
 
   void toggleVibration(bool value) {
     state = state.copyWith(allowVibration: value);
+  }
+
+  void toggleKeepScreenAwake(bool value) {
+    state = state.copyWith(keepScreenAwake: value);
+  }
+
+  void setLanguage(AppLanguage language) {
+    _language = language;
+    unawaited(_sounds.setLanguage(language.ttsLanguageCode));
+  }
+
+  String _tts(String key) {
+    final phrases = switch (_language) {
+      AppLanguage.russian => const {
+        'getReady': 'Приготовься',
+        'work': 'Работа',
+        'rest': 'Отдых',
+        'minuteLeft': 'Осталась минута',
+        'thirtySecondsLeft': 'Осталось тридцать секунд',
+        'goodWork': 'Хорошая работа',
+      },
+      AppLanguage.czech => const {
+        'getReady': 'Připrav se',
+        'work': 'Práce',
+        'rest': 'Pauza',
+        'minuteLeft': 'Zbývá minuta',
+        'thirtySecondsLeft': 'Zbývá třicet sekund',
+        'goodWork': 'Dobrá práce',
+      },
+      AppLanguage.english => const {
+        'getReady': 'Get ready',
+        'work': 'Work',
+        'rest': 'Rest',
+        'minuteLeft': 'Minute left',
+        'thirtySecondsLeft': 'Thirty seconds left',
+        'goodWork': 'Good work',
+      },
+    };
+
+    return phrases[key] ?? key;
   }
 
   bool _canEnableMinuteAnnouncementForSettings({int? workMs, int? restMs}) {
@@ -694,7 +738,7 @@ class TimerNotifier extends Notifier<TimerState> {
       if (!_isCurrentRun(generation)) return;
     }
 
-    await _sounds.speak('Good work');
+    await _sounds.speak(_tts('goodWork'));
     if (!_isCurrentRun(generation)) return;
 
     _timer?.cancel();
@@ -718,6 +762,7 @@ class TimerNotifier extends Notifier<TimerState> {
       ),
       rounds: preset.rounds,
       preparationMs: preset.preparationMs,
+      keepScreenAwake: preset.keepScreenAwake,
       remainingMs: preset.preparationMs,
       currentRound: 1,
       currentBlockIndex: 0,
@@ -841,7 +886,9 @@ class TimerNotifier extends Notifier<TimerState> {
   void startCustomPreset(TimerCustomPreset preset) {
     _cancelRunCallbacks();
 
-    final blocks = List.of(preset.blocks);
+    final blocks = [
+      for (var set = 0; set < preset.sets; set++) ...preset.blocks,
+    ];
 
     state = state.copyWith(
       selectedCustomPreset: preset,
@@ -901,6 +948,7 @@ class TimerNotifier extends Notifier<TimerState> {
       restMs: state.restMs,
       rounds: state.rounds,
       preparationMs: state.preparationMs,
+      keepScreenAwake: state.keepScreenAwake,
     );
   }
 
@@ -939,7 +987,8 @@ class TimerNotifier extends Notifier<TimerState> {
         first.workMs == second.workMs &&
         first.restMs == second.restMs &&
         first.rounds == second.rounds &&
-        first.preparationMs == second.preparationMs;
+        first.preparationMs == second.preparationMs &&
+        first.keepScreenAwake == second.keepScreenAwake;
   }
 
   String _nextPresetName({

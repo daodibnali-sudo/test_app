@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:chelnok_boxing_timer/features/settings/localization/app_strings.dart';
+import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/formatters/timer_formatter.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
 import 'package:chelnok_boxing_timer/router/open_timer.dart';
@@ -18,6 +20,11 @@ class TimerSetPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(
+      appSettingsProvider.select((settings) => settings.themeMode),
+    );
+    AppColors.setThemeMode(themeMode);
+
     final timer = ref.watch(
       timerProvider.select(
         (timer) => (
@@ -28,6 +35,7 @@ class TimerSetPage extends ConsumerWidget {
           tenSecAnnouncement: timer.tenSecAnnouncement,
           thirtySecAnnouncement: timer.thirtySecAnnouncement,
           minuteAnnouncement: timer.minuteAnnouncement,
+          keepScreenAwake: timer.keepScreenAwake,
           canEnableMinuteAnnouncement:
               timer.workMs > 60000 || timer.restMs > 60000,
           savedTimerPresets: timer.savedTimerPresets,
@@ -35,6 +43,7 @@ class TimerSetPage extends ConsumerWidget {
       ),
     );
     final timerNotifier = ref.read(timerProvider.notifier);
+    final strings = ref.watch(appStringsProvider);
     final totalMs =
         timer.preparationMs +
         (timer.workMs * timer.rounds) +
@@ -57,30 +66,30 @@ class TimerSetPage extends ConsumerWidget {
                   children: [
                     TimeSettingRow(
                       value: formatTime(timer.preparationMs),
-                      label: 'Preparation',
+                      label: strings.text('preparation'),
                       onMinus: timerNotifier.subtractPreparationTime,
                       onPlus: timerNotifier.addPreparationTime,
                     ),
                     TimeSettingRow(
                       value: formatTime(timer.workMs),
-                      label: 'Work',
+                      label: strings.text('work'),
                       onMinus: timerNotifier.subtractWorkTime,
                       onPlus: timerNotifier.addWorkTime,
                     ),
                     TimeSettingRow(
                       value: formatTime(timer.restMs),
-                      label: 'Rest',
+                      label: strings.text('rest'),
                       onMinus: timerNotifier.subtractRestTime,
                       onPlus: timerNotifier.addRestTime,
                     ),
                     TimeSettingRow(
                       value: timer.rounds.toString(),
-                      label: 'Rounds',
+                      label: strings.text('rounds'),
                       onMinus: timerNotifier.subtractRound,
                       onPlus: timerNotifier.addRound,
                     ),
                     Text(
-                      'Total Workout Time: ${formatTime(totalMs)}',
+                      '${strings.text('totalWorkoutTime')}: ${formatTime(totalMs)}',
                       style: AppTextStyles.heading.copyWith(
                         fontSize: 24,
                         color: AppColors.textDisabled,
@@ -98,27 +107,32 @@ class TimerSetPage extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Announcements:',
+                      strings.text('announcements'),
                       style: AppTextStyles.body.copyWith(
                         color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 5),
                     AnnouncementRow(
-                      label: '10s Left',
+                      label: strings.text('tenSecondsLeft'),
                       value: timer.tenSecAnnouncement,
                       onChanged: timerNotifier.toggleTenSecAnnouncement,
                     ),
                     AnnouncementRow(
-                      label: '30s Left',
+                      label: strings.text('thirtySecondsLeft'),
                       value: timer.thirtySecAnnouncement,
                       onChanged: timerNotifier.toggleThirtySecAnnouncement,
                     ),
                     AnnouncementRow(
-                      label: 'Minute left',
+                      label: strings.text('minuteLeft'),
                       value: timer.minuteAnnouncement,
                       onChanged: timerNotifier.toggleMinuteAnnouncement,
                       enabled: timer.canEnableMinuteAnnouncement,
+                    ),
+                    AnnouncementRow(
+                      label: strings.text('keepScreenAwake'),
+                      value: timer.keepScreenAwake,
+                      onChanged: timerNotifier.toggleKeepScreenAwake,
                     ),
                   ],
                 ),
@@ -131,7 +145,7 @@ class TimerSetPage extends ConsumerWidget {
                   Expanded(
                     child: AppButton(
                       backgroundColor: AppColors.cyanLight,
-                      text: 'START',
+                      text: strings.text('start'),
                       leading: Icon(Icons.play_circle_fill),
                       textColor: AppColors.blackSurface,
                       onPressed: () {
@@ -147,12 +161,16 @@ class TimerSetPage extends ConsumerWidget {
                   Expanded(
                     child: AppButton(
                       borderColor: AppColors.cyanLight,
-                      text: editingPreset == null ? 'SAVE' : 'UPDATE',
+                      text: editingPreset == null
+                          ? strings.text('save')
+                          : strings.text('update'),
                       textColor: AppColors.cyanLight,
                       leading: Icon(Icons.save),
                       iconColor: AppColors.cyanLight,
                       filled: false,
                       onPressed: () {
+                        final messenger = ScaffoldMessenger.of(context);
+                        final navigator = Navigator.of(context);
                         final preset = timerNotifier.buildCurrentTimerPreset(
                           title: editingPreset?.title,
                         );
@@ -166,16 +184,25 @@ class TimerSetPage extends ConsumerWidget {
                           );
                         }
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              editingPreset == null
-                                  ? '${preset.title} saved'
-                                  : '${preset.title} updated',
+                        navigator.popUntil((route) => route.isFirst);
+                        messenger
+                          ..clearSnackBars()
+                          ..showSnackBar(
+                            SnackBar(
+                              duration: const Duration(milliseconds: 1300),
+                              content: Text(
+                                editingPreset == null
+                                    ? '${preset.title} ${strings.text('saved')}'
+                                    : '${preset.title} ${strings.text('updated')}',
+                                style: AppTextStyles.label.copyWith(
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              showCloseIcon: true,
+                              closeIconColor: AppColors.error,
+                              backgroundColor: AppColors.blackSurface,
                             ),
-                            backgroundColor: AppColors.blackSurface,
-                          ),
-                        );
+                          );
                       },
                     ),
                   ),

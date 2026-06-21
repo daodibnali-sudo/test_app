@@ -7,6 +7,8 @@ Future<void> showPresetActions({
   required String title,
   required String editLabel,
   required VoidCallback onEdit,
+  String removeLabel = 'REMOVE',
+  String cancelLabel = 'CANCEL',
   VoidCallback? onRemove,
 }) {
   return showModalBottomSheet<void>(
@@ -20,7 +22,8 @@ Future<void> showPresetActions({
             decoration: BoxDecoration(
               color: AppColors.blackSurface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cyanDeep.withAlpha(120)),
+              border: Border.all(color: AppColors.borderSoft),
+              boxShadow: AppColors.cardShadows,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -50,7 +53,7 @@ Future<void> showPresetActions({
                 if (onRemove != null)
                   _PresetActionTile(
                     icon: Icons.delete_outline,
-                    label: 'REMOVE',
+                    label: removeLabel,
                     isDestructive: true,
                     onTap: () {
                       Navigator.pop(sheetContext);
@@ -59,7 +62,7 @@ Future<void> showPresetActions({
                   ),
                 _PresetActionTile(
                   icon: Icons.close,
-                  label: 'CANCEL',
+                  label: cancelLabel,
                   onTap: () => Navigator.pop(sheetContext),
                 ),
               ],
@@ -71,25 +74,28 @@ Future<void> showPresetActions({
   );
 }
 
-Future<bool> showRemovePresetConfirmation(BuildContext context) async {
+Future<bool> showRemovePresetConfirmation(
+  BuildContext context, {
+  String title = 'Remove preset?',
+  String message = 'This action cannot be undone.',
+  String cancelLabel = 'CANCEL',
+  String removeLabel = 'REMOVE',
+}) async {
   final shouldRemove = await showDialog<bool>(
     context: context,
     builder: (dialogContext) {
       return AlertDialog(
         backgroundColor: AppColors.blackSurface,
-        title: Text(
-          'Remove preset?',
-          style: AppTextStyles.heading.copyWith(fontSize: 24),
-        ),
+        title: Text(title, style: AppTextStyles.heading.copyWith(fontSize: 24)),
         content: Text(
-          'This action cannot be undone.',
+          message,
           style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(
-              'CANCEL',
+              cancelLabel,
               style: AppTextStyles.title.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -98,7 +104,7 @@ Future<bool> showRemovePresetConfirmation(BuildContext context) async {
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(
-              'REMOVE',
+              removeLabel,
               style: AppTextStyles.title.copyWith(color: AppColors.error),
             ),
           ),

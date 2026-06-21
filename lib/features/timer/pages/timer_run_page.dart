@@ -1,10 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:chelnok_boxing_timer/core/ads/interstitial_ad_service.dart';
+import 'package:chelnok_boxing_timer/features/settings/localization/app_strings.dart';
+import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/formatters/timer_formatter.dart';
+import 'package:chelnok_boxing_timer/features/timer/logic/timer_state.dart';
 import 'package:chelnok_boxing_timer/features/timer/logic/timer_run_controller.dart';
 import 'package:chelnok_boxing_timer/features/timer/pages/timer_set_page.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
+import 'package:chelnok_boxing_timer/features/timer/services/timer_notification_service.dart';
+import 'package:chelnok_boxing_timer/features/timer/services/timer_power_service.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/app_bar_timer.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/chelnok_progress_bar.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/timer_display.dart';
@@ -22,7 +30,10 @@ class TimerRunPage extends ConsumerStatefulWidget {
 class _TimerRunPageState extends ConsumerState<TimerRunPage> {
   bool _stopCalled = false;
   bool _donePressed = false;
+  bool _wakelockEnabled = false;
+  bool _notificationSessionEnded = false;
 
+  late final int _notificationSessionId;
   late final void Function() _stopRun;
 
   @override
@@ -31,6 +42,19 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
 
     final timerNotifier = ref.read(timerProvider.notifier);
     _stopRun = timerNotifier.stopRun;
+    _notificationSessionId = TimerNotificationService.instance.beginSession();
+    TimerNotificationService.instance.registerActions(
+      onPauseResume: _handleNotificationPauseResume,
+      onSkip: _handleNotificationSkip,
+    );
+    unawaited(_syncWakelock(ref.read(timerProvider)));
+    unawaited(TimerPowerService.acquireRunWakeLock());
+    unawaited(
+      TimerNotificationService.instance.sync(
+        ref.read(timerProvider),
+        sessionId: _notificationSessionId,
+      ),
+    );
   }
 
   void _leaveRunPage() {
@@ -89,16 +113,118 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
 
     _stopCalled = true;
     _stopRun();
+    unawaited(_setWakelock(false));
+    unawaited(TimerPowerService.releaseRunWakeLock());
+    _endNotificationSession();
+  }
+
+  void _endNotificationSession() {
+    if (_notificationSessionEnded) return;
+
+    _notificationSessionEnded = true;
+    TimerNotificationService.instance.registerActions();
+    unawaited(
+      TimerNotificationService.instance.endSession(_notificationSessionId),
+    );
+  }
+
+  void _handleNotificationPauseResume() {
+    if (!mounted) return;
+
+    final timer = ref.read(timerProvider);
+    if (timer.isFinished) return;
+
+    final timerNotifier = ref.read(timerProvider.notifier);
+    if (timer.isRunning) {
+      timerNotifier.pause();
+    } else {
+      timerNotifier.start();
+    }
+  }
+
+  void _handleNotificationSkip() {
+    if (!mounted) return;
+
+    final timer = ref.read(timerProvider);
+    if (timer.isFinished) return;
+
+    ref.read(timerProvider.notifier).skip();
+  }
+
+  Future<void> _syncWakelock(TimerState timer) async {
+    await _setWakelock(
+      timer.keepScreenAwake && timer.isRunning && !timer.isFinished,
+    );
+  }
+
+  Future<void> _setWakelock(bool enabled) async {
+    if (_wakelockEnabled == enabled) return;
+
+    _wakelockEnabled = enabled;
+
+    if (enabled) {
+      await WakelockPlus.enable();
+    } else {
+      await WakelockPlus.disable();
+    }
   }
 
   @override
   void dispose() {
+    _endNotificationSession();
     _stopRunOnce();
+    unawaited(_setWakelock(false));
+    unawaited(TimerPowerService.releaseRunWakeLock());
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(
+      appSettingsProvider.select((settings) => settings.themeMode),
+    );
+    AppColors.setThemeMode(themeMode);
+
+    ref.listen(
+      timerProvider.select(
+        (timer) => (
+          displaySecond: (timer.remainingMs / 1000).ceil(),
+          phaseName: timer.currentPhaseName,
+          phaseTotalMs: timer.currentPhaseTotalMs,
+          isRunning: timer.isRunning,
+          isFinished: timer.isFinished,
+          isPreparation: timer.isPreparation,
+          currentRound: timer.currentRound,
+          currentBlockIndex: timer.currentBlockIndex,
+        ),
+      ),
+      (_, _) {
+        unawaited(
+          TimerNotificationService.instance.sync(
+            ref.read(timerProvider),
+            sessionId: _notificationSessionId,
+          ),
+        );
+      },
+    );
+
+    ref.listen(
+      timerProvider.select(
+        (timer) => (
+          keepScreenAwake: timer.keepScreenAwake,
+          isRunning: timer.isRunning,
+          isFinished: timer.isFinished,
+        ),
+      ),
+      (_, timer) {
+        unawaited(
+          _setWakelock(
+            timer.keepScreenAwake && timer.isRunning && !timer.isFinished,
+          ),
+        );
+      },
+    );
+
     final appBarTitle = ref.watch(
       timerProvider.select(
         (timer) =>
@@ -140,6 +266,7 @@ class _PhaseTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
     final phase = ref.watch(
       timerProvider.select((timer) {
         final color = timer.isPreparation
@@ -151,7 +278,9 @@ class _PhaseTitle extends ConsumerWidget {
             : AppColors.success;
 
         return (
-          name: timer.isFinished ? 'WORKOUT COMPLETE' : timer.currentPhaseName,
+          name: timer.isFinished
+              ? strings.text('workoutComplete')
+              : strings.phaseName(timer),
           color: color,
         );
       }),
@@ -203,6 +332,7 @@ class _FinishedSummaryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
     final summary = ref.watch(
       timerProvider.select(
         (timer) => (
@@ -224,7 +354,7 @@ class _FinishedSummaryCard extends ConsumerWidget {
         children: [
           Expanded(
             child: _SummaryMetric(
-              label: 'TOTAL WORK',
+              label: strings.text('totalWork'),
               value: summary.totalWork,
             ),
           ),
@@ -235,7 +365,7 @@ class _FinishedSummaryCard extends ConsumerWidget {
           ),
           Expanded(
             child: _SummaryMetric(
-              label: 'TOTAL TIME',
+              label: strings.text('totalTime'),
               value: summary.totalTime,
             ),
           ),
@@ -359,6 +489,7 @@ class _ProgressLabel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
     final timer = ref.watch(
       timerProvider.select((timer) {
         if (timer.isFinished) {
@@ -373,8 +504,8 @@ class _ProgressLabel extends ConsumerWidget {
         return (
           isFinished: false,
           label: timer.isCustomWorkout
-              ? 'Block ${timer.currentBlockIndex + 1} / ${timer.customBlocks.length}'
-              : 'Round ${timer.currentRound} / ${timer.rounds}',
+              ? '${strings.text('block')} ${timer.currentBlockIndex + 1} / ${timer.customBlocks.length}'
+              : '${strings.text('round')} ${timer.currentRound} / ${timer.rounds}',
         );
       }),
     );
@@ -402,6 +533,7 @@ class _RunActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
     final timer = ref.watch(
       timerProvider.select(
         (timer) => (isRunning: timer.isRunning, isFinished: timer.isFinished),
@@ -410,11 +542,11 @@ class _RunActions extends ConsumerWidget {
 
     if (timer.isFinished) {
       return AppButton(
-        text: 'DONE',
+        text: strings.text('done'),
         leading: const Icon(Icons.check_rounded),
         backgroundColor: AppColors.cyanLight,
         iconColor: AppColors.blackBg,
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           color: AppColors.blackBg,
           fontWeight: FontWeight.w700,
           fontSize: 16,
@@ -432,13 +564,15 @@ class _RunActions extends ConsumerWidget {
         children: [
           Expanded(
             child: AppButton(
-              text: timer.isRunning ? 'PAUSE' : 'START',
+              text: timer.isRunning
+                  ? strings.text('pause')
+                  : strings.text('start'),
               leading: Icon(timer.isRunning ? Icons.pause : Icons.play_arrow),
               backgroundColor: timer.isRunning
                   ? AppColors.error
                   : AppColors.success,
               iconSize: 35,
-              textStyle: const TextStyle(
+              textStyle: TextStyle(
                 color: AppColors.blackBg,
                 fontWeight: FontWeight.w700,
                 fontSize: 16,
@@ -450,13 +584,16 @@ class _RunActions extends ConsumerWidget {
           Expanded(
             child: AppButton(
               borderColor: AppColors.cyanLight,
-              text: timer.isRunning ? 'SKIP' : 'RESET',
+              text: timer.isRunning
+                  ? strings.text('skip')
+                  : strings.text('reset'),
               textColor: AppColors.cyanLight,
               leading: timer.isRunning
                   ? const Icon(Icons.skip_next)
                   : const Icon(Icons.restart_alt),
               filled: true,
               iconSize: 32,
+
               iconColor: AppColors.cyanLight,
               backgroundColor: AppColors.blackSurface,
               onPressed: timer.isRunning ? controller.skip : controller.reset,

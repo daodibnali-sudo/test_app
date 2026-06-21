@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:chelnok_boxing_timer/features/settings/localization/app_strings.dart';
+import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/data/timer_presets.dart';
 import 'package:chelnok_boxing_timer/features/timer/models/timer_custom_preset.dart';
 import 'package:chelnok_boxing_timer/features/timer/models/timer_quick_preset.dart';
@@ -20,18 +22,21 @@ class PresetListPage extends ConsumerWidget {
 
   final PresetListType type;
 
-  String get _title {
-    return switch (type) {
-      PresetListType.defaultPresets => 'Quick Settings Workouts',
-      PresetListType.customPresets => 'Custom Presets',
-    };
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(
+      appSettingsProvider.select((settings) => settings.themeMode),
+    );
+    AppColors.setThemeMode(themeMode);
+    final strings = ref.watch(appStringsProvider);
+    final title = switch (type) {
+      PresetListType.defaultPresets => strings.text('quickSettingsWorkouts'),
+      PresetListType.customPresets => strings.text('customPresetsTitle'),
+    };
+
     return Scaffold(
       backgroundColor: AppColors.blackBg,
-      appBar: TimerAppBar(title: _title),
+      appBar: TimerAppBar(title: title),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(21, 16, 21, 20),
@@ -129,34 +134,36 @@ class _CustomPresetList extends ConsumerWidget {
   }
 }
 
-class _EmptyCustomPresetState extends StatelessWidget {
+class _EmptyCustomPresetState extends ConsumerWidget {
   const _EmptyCustomPresetState();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'NO CUSTOM PRESETS YET',
+            strings.text('noCustomPresetsYet'),
             textAlign: TextAlign.center,
             style: AppTextStyles.heading.copyWith(fontSize: 24),
           ),
           const SizedBox(height: 8),
           Text(
-            'Create your first preset to build your own workout.',
+            strings.text('createFirstPreset'),
             textAlign: TextAlign.center,
             style: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 18),
           AppButton(
-            text: 'CREATE PRESET',
+            text: strings.text('createPreset'),
             leading: const Icon(Icons.playlist_add),
             backgroundColor: AppColors.cyanLight,
             iconColor: AppColors.blackBg,
-            textStyle: const TextStyle(
+            textStyle: TextStyle(
               color: AppColors.blackBg,
               fontWeight: FontWeight.w700,
               fontSize: 16,
@@ -195,9 +202,7 @@ class _QuickPresetListCard extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       backgroundColor: AppColors.blackSurface,
-      borderColor: isSelected
-          ? AppColors.cyanLight
-          : AppColors.cyanDeep.withAlpha(120),
+      borderColor: isSelected ? AppColors.cyanLight : AppColors.borderSoft,
       iconColor: isSelected ? AppColors.cyanLight : AppColors.textSecondary,
       titleStyle: AppTextStyles.body.copyWith(
         color: isSelected ? AppColors.cyanLight : AppColors.textPrimary,
@@ -237,12 +242,10 @@ class _CustomPresetListCard extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       backgroundColor: AppColors.blackSurface,
-      borderColor: isSelected
-          ? AppColors.cyanLight
-          : AppColors.cyanDeep.withAlpha(120),
-      iconColor: isSelected ? AppColors.cyanLight : AppColors.textSecondary,
+      borderColor: isSelected ? AppColors.cyanLight : AppColors.borderSoft,
+      iconColor: AppColors.textSecondary,
       titleStyle: AppTextStyles.body.copyWith(
-        color: isSelected ? AppColors.cyanLight : AppColors.textPrimary,
+        color: AppColors.textPrimary,
         fontSize: 15,
       ),
       subtitleStyle: AppTextStyles.label.copyWith(
@@ -288,7 +291,11 @@ void _showQuickPresetActions({
   showPresetActions(
     context: context,
     title: preset.title,
-    editLabel: savedIndex == null ? 'EDIT AS COPY' : 'EDIT',
+    editLabel: savedIndex == null
+        ? ref.read(appStringsProvider).text('editAsCopy')
+        : ref.read(appStringsProvider).text('edit'),
+    removeLabel: ref.read(appStringsProvider).text('remove'),
+    cancelLabel: ref.read(appStringsProvider).text('cancel'),
     onEdit: () {
       final notifier = ref.read(timerProvider.notifier);
 
@@ -298,7 +305,14 @@ void _showQuickPresetActions({
     onRemove: savedIndex == null
         ? null
         : () async {
-            final shouldRemove = await showRemovePresetConfirmation(context);
+            final strings = ref.read(appStringsProvider);
+            final shouldRemove = await showRemovePresetConfirmation(
+              context,
+              title: strings.text('removePresetQuestion'),
+              message: strings.text('actionCannotBeUndone'),
+              cancelLabel: strings.text('cancel'),
+              removeLabel: strings.text('remove'),
+            );
             if (!shouldRemove || !context.mounted) return;
 
             ref.read(timerProvider.notifier).removeTimerPreset(savedIndex);
@@ -315,11 +329,20 @@ void _showCustomPresetActions({
   showPresetActions(
     context: context,
     title: preset.name,
-    editLabel: 'EDIT',
+    editLabel: ref.read(appStringsProvider).text('edit'),
+    removeLabel: ref.read(appStringsProvider).text('remove'),
+    cancelLabel: ref.read(appStringsProvider).text('cancel'),
     onEdit: () =>
         openPresetBuilderPage(context, editingCustomPresetIndex: index),
     onRemove: () async {
-      final shouldRemove = await showRemovePresetConfirmation(context);
+      final strings = ref.read(appStringsProvider);
+      final shouldRemove = await showRemovePresetConfirmation(
+        context,
+        title: strings.text('removePresetQuestion'),
+        message: strings.text('actionCannotBeUndone'),
+        cancelLabel: strings.text('cancel'),
+        removeLabel: strings.text('remove'),
+      );
       if (!shouldRemove || !context.mounted) return;
 
       ref.read(timerProvider.notifier).removeCustomPreset(index);

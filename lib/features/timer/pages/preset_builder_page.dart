@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/models/timer_block.dart';
 import 'package:chelnok_boxing_timer/features/timer/models/timer_custom_preset.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
@@ -25,6 +26,7 @@ class PresetBuilderPage extends ConsumerStatefulWidget {
 class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
   final TextEditingController _nameController = TextEditingController();
   final List<_DraftBlock> _blocks = [];
+  int _sets = 1;
 
   List<TimerBlock> get _acceptedBlocks => _blocks
       .where((block) => !block.isRestSuggestion)
@@ -48,6 +50,7 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
 
     final preset = presets[editingIndex];
     _nameController.text = preset.name;
+    _sets = preset.sets;
     _blocks.addAll(preset.blocks.map(_DraftBlock.new));
   }
 
@@ -117,7 +120,11 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
       return null;
     }
 
-    return TimerCustomPreset(name: name, blocks: List.unmodifiable(blocks));
+    return TimerCustomPreset(
+      name: name,
+      blocks: List.unmodifiable(blocks),
+      sets: _sets,
+    );
   }
 
   void _showNameAlert(String name) {
@@ -193,10 +200,23 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     setState(() => _blocks.removeAt(index));
   }
 
+  void _addSet() {
+    setState(() => _sets = (_sets + 1).clamp(1, 99));
+  }
+
+  void _subtractSet() {
+    setState(() => _sets = (_sets - 1).clamp(1, 99));
+  }
+
   //UI/////////////////////////////////////////////////////////////UI/////////////
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(
+      appSettingsProvider.select((settings) => settings.themeMode),
+    );
+    AppColors.setThemeMode(themeMode);
+
     final canUsePreset = _acceptedBlocks.isNotEmpty;
 
     return Scaffold(
@@ -220,6 +240,12 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
                       color: AppColors.textPrimary,
                     ),
                     decoration: _inputDecoration("e.g. \"light sparring\""),
+                  ),
+                  const SizedBox(height: 12),
+                  _SetsRow(
+                    value: _sets,
+                    onMinus: _subtractSet,
+                    onPlus: _addSet,
                   ),
                   const SizedBox(height: 12),
                   const _BlocksHeader(),
@@ -267,9 +293,9 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
                     text: 'Add Block',
                     leading: const Icon(Icons.add),
                     backgroundColor: AppColors.blackSurface,
-                    borderColor: AppColors.cyanLight,
-                    textColor: AppColors.cyanLight,
-                    iconColor: AppColors.cyanLight,
+                    borderColor: AppColors.controlBorder,
+                    textColor: AppColors.textPrimary,
+                    iconColor: AppColors.textPrimary,
                     filled: false,
                     onPressed: _addBlock,
                   ),
@@ -331,6 +357,68 @@ class _DraftBlock {
   final bool isRestSuggestion;
 }
 
+class _SetsRow extends StatelessWidget {
+  const _SetsRow({
+    required this.value,
+    required this.onMinus,
+    required this.onPlus,
+  });
+
+  final int value;
+  final VoidCallback onMinus;
+  final VoidCallback onPlus;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.blackSurface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.controlBorder),
+        boxShadow: AppColors.cardShadows,
+      ),
+      child: Row(
+        children: [
+          Text(
+            'Sets',
+            style: AppTextStyles.title.copyWith(color: AppColors.textPrimary),
+          ),
+          const Spacer(),
+          IconButton(
+            onPressed: onMinus,
+            icon: const Icon(Icons.remove),
+            color: AppColors.textPrimary,
+            highlightColor: AppColors.error.withAlpha(100),
+          ),
+          SizedBox(
+            width: 44,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 140),
+              child: Text(
+                value.toString(),
+                key: ValueKey(value),
+                textAlign: TextAlign.center,
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textPrimary,
+                  fontSize: 28,
+                  
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: onPlus,
+            icon: const Icon(Icons.add),
+            color: AppColors.textPrimary,
+            highlightColor: AppColors.textPrimary.withAlpha(100),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _BlocksHeader extends StatelessWidget {
   const _BlocksHeader();
 
@@ -355,11 +443,11 @@ InputDecoration _inputDecoration(String label) {
     fillColor: AppColors.blackSurface,
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: AppColors.cyanDeep.withAlpha(120)),
+      borderSide: BorderSide(color: AppColors.controlBorder),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: AppColors.cyanLight),
+      borderSide: BorderSide(color: AppColors.controlBorder),
     ),
   );
 }

@@ -19,6 +19,8 @@ dependencies:
   url_launcher: ^6.3.2
   chelnok_vibrate:
     path: packages/chelnok_vibrate
+  wakelock_plus: ^1.6.1
+  flutter_local_notifications: ^22.0.1
 
 dev_dependencies:
   flutter_test:
