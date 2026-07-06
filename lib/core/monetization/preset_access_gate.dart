@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:chelnok_boxing_timer/core/ads/rewarded_ad_service.dart';
+import 'package:chelnok_boxing_timer/core/monetization/revenue_cat_service.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
 import 'package:chelnok_boxing_timer/widgets/button.dart';
@@ -18,13 +17,14 @@ class PresetAccessGate {
     // Android only - not publishing on other platforms
     // if (!Platform.isAndroid) return true;
 
+    if (await RevenueCatService.instance.isProActive()) return true;
+
     final prefs = await SharedPreferences.getInstance();
     final usedStarts = prefs.getInt(_rewardedStartsKey) ?? 0;
 
     if (usedStarts >= maxRewardedPresetStarts) {
       if (!context.mounted) return false;
-      await _showUpgradeSheet(context);
-      return false;
+      return _showUpgradeSheet(context);
     }
 
     if (!context.mounted) return false;
@@ -34,16 +34,18 @@ class PresetAccessGate {
     );
     if (acceptedAd != true || !context.mounted) return false;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Loading rewarded ad...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Loading rewarded ad...')));
 
     final earnedReward = await RewardedAdService.instance.showRewardedAd();
     if (!context.mounted) return false;
 
     if (!earnedReward) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Watch the full ad to start this preset.')),
+        const SnackBar(
+          content: Text('Watch the full ad to start this preset.'),
+        ),
       );
       return false;
     }
@@ -110,8 +112,8 @@ class PresetAccessGate {
     );
   }
 
-  static Future<void> _showUpgradeSheet(BuildContext context) {
-    return showModalBottomSheet<void>(
+  static Future<bool> _showUpgradeSheet(BuildContext context) async {
+    final selectedAction = await showModalBottomSheet<_UpgradeAction>(
       context: context,
       backgroundColor: AppColors.blackSurface,
       shape: const RoundedRectangleBorder(
@@ -135,31 +137,31 @@ class PresetAccessGate {
                 const SizedBox(height: 8),
                 Text(
                   'You used your 2 rewarded ad starts. Next step is connecting '
-                  'Google Play Billing with RevenueCat for monthly and lifetime access.',
+                  'Google Play Billing with RevenueCat for yearly or lifetime access.',
                   style: AppTextStyles.label.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 18),
                 AppButton(
-                  text: r'$1.99 first month',
+                  text: 'Upgrade to Chelnok Pro',
                   leading: const Icon(Icons.calendar_month),
                   backgroundColor: AppColors.cyanLight,
                   iconColor: AppColors.blackBg,
                   textColor: AppColors.blackBg,
-                  enabled: false,
-                  onPressed: null,
+                  onPressed: () =>
+                      Navigator.pop(context, _UpgradeAction.paywall),
                 ),
                 const SizedBox(height: 10),
                 AppButton(
-                  text: r'$7.99 lifetime',
-                  leading: const Icon(Icons.lock_open),
+                  text: 'Restore purchases',
+                  leading: const Icon(Icons.restore),
                   backgroundColor: AppColors.surfaceSoft,
                   borderColor: AppColors.borderSoft,
                   iconColor: AppColors.textPrimary,
                   textColor: AppColors.textPrimary,
-                  enabled: false,
-                  onPressed: null,
+                  onPressed: () =>
+                      Navigator.pop(context, _UpgradeAction.restore),
                 ),
                 const SizedBox(height: 10),
                 TextButton(
@@ -175,5 +177,20 @@ class PresetAccessGate {
         );
       },
     );
+
+    if (!context.mounted) return false;
+
+    switch (selectedAction) {
+      case _UpgradeAction.paywall:
+        return RevenueCatService.instance.presentProPaywall();
+      case _UpgradeAction.restore:
+        final customerInfo = await RevenueCatService.instance
+            .restorePurchases();
+        return RevenueCatService.instance.isProCustomer(customerInfo);
+      case null:
+        return false;
+    }
   }
 }
+
+enum _UpgradeAction { paywall, restore }

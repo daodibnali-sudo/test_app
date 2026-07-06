@@ -83,7 +83,7 @@ final termsOfServiceSections = [
     heading: 'Contact Information',
     body:
         'If you have questions about these Terms of Service, please contact:\n\n'
-        'Email: chelnok.boxing@gmail.com\n'
+        'Email: daodibnali@gmail.com\n'
         'Website: https://sites.google.com/view/chelnok-studios/\n\n'
         'Last Updated: July 2026',
   ),

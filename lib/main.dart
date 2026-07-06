@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chelnok_boxing_timer/core/ads/interstitial_ad_service.dart';
 import 'package:chelnok_boxing_timer/core/ads/rewarded_ad_service.dart';
+import 'package:chelnok_boxing_timer/core/monetization/revenue_cat_service.dart';
 import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/pages/home_page.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
@@ -13,6 +14,7 @@ import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  unawaited(RevenueCatService.instance.initialize());
   unawaited(InterstitialAdService.instance.initialize());
   unawaited(RewardedAdService.instance.initialize());
   SystemChrome.setSystemUIOverlayStyle(

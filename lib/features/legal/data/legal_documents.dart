@@ -1,2 +1,3 @@
-const privacyPolicyUrl = 'https://sites.google.com/view/chelnok-studios/privacy-policy';
-const termsOfServiceUrl = 'https://sites.google.com/view/chelnok-studios/terms-of-service';
+const privacyPolicyUrl = 'https://chenok.online/privacy-policy/';
+const termsOfServiceUrl =
+    'https://sites.google.com/view/chelnok-studios/terms-of-service';

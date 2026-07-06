@@ -59,7 +59,7 @@ final privacyPolicySections = [
     heading: 'Contact Us',
     body:
         'If you have questions about this Privacy Policy or our privacy practices, please contact us at:\n\n'
-        'Email: chelnok.boxing@gmail.com\n'
+        'Email: daodibnali@gmail.com\n'
         'Website: https://sites.google.com/view/chelnok-studios/\n\n'
         'Last Updated: July 2026',
   ),

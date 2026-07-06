@@ -21,6 +21,8 @@ dependencies:
     path: packages/chelnok_vibrate
   wakelock_plus: ^1.6.1
   flutter_local_notifications: ^22.0.1
+  purchases_flutter: ^10.4.0
+  purchases_ui_flutter: ^10.4.0
 
 dev_dependencies:
   flutter_test:

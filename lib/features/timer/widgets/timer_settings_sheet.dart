@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chelnok_boxing_timer/features/legal/data/legal_documents.dart';
+import 'package:chelnok_boxing_timer/core/monetization/subscription_provider.dart';
 import 'package:chelnok_boxing_timer/features/settings/localization/app_strings.dart';
 import 'package:chelnok_boxing_timer/features/settings/models/app_language.dart';
 import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
@@ -35,11 +36,13 @@ class _TimerSettingsSheet extends ConsumerWidget {
       ),
     );
     final appSettings = ref.watch(appSettingsProvider);
+    final subscription = ref.watch(subscriptionProvider);
     AppColors.setThemeMode(appSettings.themeMode);
 
     final appSettingsNotifier = ref.read(appSettingsProvider.notifier);
     final strings = ref.watch(appStringsProvider);
     final notifier = ref.read(timerProvider.notifier);
+    final subscriptionNotifier = ref.read(subscriptionProvider.notifier);
 
     return Material(
       color: AppColors.blackSurface,
@@ -99,6 +102,75 @@ class _TimerSettingsSheet extends ConsumerWidget {
               Divider(height: 1, thickness: 1, color: AppColors.borderSoft),
               const SizedBox(height: 16),
               Text(
+                'CHELNOK PRO',
+                style: AppTextStyles.title.copyWith(
+                  color: AppColors.textSecondary,
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _LegalNavigationRow(
+                icon: subscription.isPro
+                    ? Icons.verified_outlined
+                    : Icons.workspace_premium_outlined,
+                title: subscription.isPro
+                    ? 'Pro is active'
+                    : subscription.isLoading
+                    ? 'Checking Pro status...'
+                    : 'Upgrade to Pro',
+                onTap: subscription.isPro || subscription.isLoading
+                    ? () {}
+                    : () async {
+                        Navigator.pop(context);
+                        final unlocked = await subscriptionNotifier
+                            .presentProPaywall();
+                        if (!rootContext.mounted) return;
+                        _showSubscriptionMessage(
+                          rootContext,
+                          unlocked
+                              ? 'Chelnok Pro is active.'
+                              : 'Upgrade not completed.',
+                        );
+                      },
+              ),
+              _LegalNavigationRow(
+                icon: Icons.restore,
+                title: 'Restore purchases',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final restored = await subscriptionNotifier
+                      .restorePurchases();
+                  if (!rootContext.mounted) return;
+                  _showSubscriptionMessage(
+                    rootContext,
+                    restored
+                        ? 'Chelnok Pro restored.'
+                        : 'No active Pro purchase found.',
+                  );
+                },
+              ),
+              if (subscription.isPro)
+                _LegalNavigationRow(
+                  icon: Icons.manage_accounts_outlined,
+                  title: 'Manage subscription',
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await subscriptionNotifier.presentCustomerCenter();
+                  },
+                ),
+              if (subscription.errorMessage != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  subscription.errorMessage!,
+                  style: AppTextStyles.label.copyWith(
+                    color: Colors.redAccent.shade100,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 14),
+              Divider(height: 1, thickness: 1, color: AppColors.borderSoft),
+              const SizedBox(height: 16),
+              Text(
                 strings.text('legal'),
                 style: AppTextStyles.title.copyWith(
                   color: AppColors.textSecondary,
@@ -127,6 +199,11 @@ class _TimerSettingsSheet extends ConsumerWidget {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  void _showSubscriptionMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
 }
 
 class _SettingsSectionLabel extends StatelessWidget {
