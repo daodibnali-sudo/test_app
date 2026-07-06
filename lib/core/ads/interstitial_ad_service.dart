@@ -14,6 +14,7 @@ class InterstitialAdService {
   bool _isLoading = false;
 
   String? get _adUnitId {
+    // Android only - not publishing on iOS
     if (Platform.isAndroid) return AdIds.androidInterstitial;
     return null;
   }

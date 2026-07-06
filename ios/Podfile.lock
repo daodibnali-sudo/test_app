@@ -1,0 +1,28 @@
+PODS:
+  - cupertino_native (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_tts (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - cupertino_native (from `.symlinks/plugins/cupertino_native/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_tts (from `.symlinks/plugins/flutter_tts/ios`)
+
+EXTERNAL SOURCES:
+  cupertino_native:
+    :path: ".symlinks/plugins/cupertino_native/ios"
+  Flutter:
+    :path: Flutter
+  flutter_tts:
+    :path: ".symlinks/plugins/flutter_tts/ios"
+
+SPEC CHECKSUMS:
+  cupertino_native: 1db0611c94f9a9ea28433ed16a344dcb996370b5
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_tts: 35ac3c7d42412733e795ea96ad2d7e05d0a75113
+
+PODFILE CHECKSUM: e30f02f9d1c72c47bb6344a0a748c9d268180865
+
+COCOAPODS: 1.16.2

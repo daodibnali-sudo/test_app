@@ -8,6 +8,7 @@ import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dar
 import 'package:chelnok_boxing_timer/features/timer/widgets/app_bar_timer.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/custom_block_card.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/timer_block_dialog.dart';
+import 'package:chelnok_boxing_timer/core/monetization/preset_access_gate.dart';
 import 'package:chelnok_boxing_timer/router/open_timer.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
@@ -166,9 +167,12 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     Navigator.pop(context);
   }
 
-  void _startPreset() {
+  Future<void> _startPreset() async {
     final preset = _buildPreset(showDuplicateAlert: true);
     if (preset == null) return;
+
+    final canStart = await PresetAccessGate.requestPresetStart(context);
+    if (!canStart || !mounted) return;
 
     final notifier = ref.read(timerProvider.notifier);
     final editingIndex = widget.editingCustomPresetIndex;

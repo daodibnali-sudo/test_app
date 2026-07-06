@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class TimerSoundService {
@@ -23,7 +24,7 @@ class TimerSoundService {
       usageType: AndroidUsageType.alarm,
       audioFocus: AndroidAudioFocus.gainTransientMayDuck,
     ),
-    iOS: AudioContextIOS(category: AVAudioSessionCategory.playback),
+    // iOS not supported - Android only app
   );
 
   static final AssetSource _bellTwiceSource = AssetSource(
@@ -163,7 +164,9 @@ class TimerSoundService {
       _configurePlayer(_beepPlayer, _beepSource),
     ]);
     await _tts.awaitSpeakCompletion(false);
-    await _tts.setQueueMode(0);
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _tts.setQueueMode(0);
+    }
     await _tts.setLanguage(_ttsLanguage);
   }
 

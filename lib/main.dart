@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chelnok_boxing_timer/core/ads/interstitial_ad_service.dart';
+import 'package:chelnok_boxing_timer/core/ads/rewarded_ad_service.dart';
 import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/pages/home_page.dart';
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
@@ -13,6 +14,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   unawaited(InterstitialAdService.instance.initialize());
+  unawaited(RewardedAdService.instance.initialize());
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: AppColors.blackBg,
@@ -38,6 +40,7 @@ class _MainAppState extends ConsumerState<MainApp> {
   @override
   void dispose() {
     InterstitialAdService.instance.dispose();
+    RewardedAdService.instance.dispose();
     super.dispose();
   }
 

@@ -9,6 +9,7 @@ import 'package:chelnok_boxing_timer/features/timer/models/timer_quick_preset.da
 import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/app_bar_timer.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/preset_actions_sheet.dart';
+import 'package:chelnok_boxing_timer/core/monetization/preset_access_gate.dart';
 import 'package:chelnok_boxing_timer/router/open_timer.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
@@ -261,6 +262,9 @@ Future<void> _startQuickPreset(
   WidgetRef ref,
   TimerPreset preset,
 ) async {
+  final canStart = await PresetAccessGate.requestPresetStart(context);
+  if (!canStart || !context.mounted) return;
+
   final notifier = ref.read(timerProvider.notifier);
   notifier
     ..applyPreset(preset)
@@ -274,6 +278,9 @@ Future<void> _startCustomPreset(
   WidgetRef ref,
   TimerCustomPreset preset,
 ) async {
+  final canStart = await PresetAccessGate.requestPresetStart(context);
+  if (!canStart || !context.mounted) return;
+
   final notifier = ref.read(timerProvider.notifier);
   notifier
     ..startCustomPreset(preset)

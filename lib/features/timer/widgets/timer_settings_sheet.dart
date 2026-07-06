@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chelnok_boxing_timer/features/legal/data/legal_documents.dart';
-import 'package:chelnok_boxing_timer/features/legal/pages/legal_document_page.dart';
 import 'package:chelnok_boxing_timer/features/settings/localization/app_strings.dart';
 import 'package:chelnok_boxing_timer/features/settings/models/app_language.dart';
 import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
@@ -9,6 +8,7 @@ import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dar
 import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
 import 'package:chelnok_boxing_timer/widgets/switch.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<void> showTimerSettingsSheet(BuildContext context) {
   return showModalBottomSheet<void>(
@@ -109,41 +109,7 @@ class _TimerSettingsSheet extends ConsumerWidget {
               _LegalNavigationRow(
                 icon: Icons.privacy_tip_outlined,
                 title: 'Privacy Policy',
-                onTap: () => _openDocument(
-                  context,
-                  LegalDocumentPage(
-                    title: 'Privacy Policy',
-                    subtitle: 'Effective date: June 12, 2026',
-                    sections: privacyPolicySections,
-                    externalUrl: privacyPolicyUrl,
-                  ),
-                ),
-              ),
-              _LegalNavigationRow(
-                icon: Icons.description_outlined,
-                title: 'Terms of Use',
-                onTap: () => _openDocument(
-                  context,
-                  LegalDocumentPage(
-                    title: 'Terms of Use',
-                    subtitle: 'Effective date: June 12, 2026',
-                    sections: termsOfUseSections,
-                    externalUrl: termsOfUseUrl,
-                  ),
-                ),
-              ),
-              _LegalNavigationRow(
-                icon: Icons.info_outline,
-                title: 'About Chelnok',
-                onTap: () => _openDocument(
-                  context,
-                  const LegalDocumentPage(
-                    title: 'About Chelnok',
-                    subtitle: 'Built for the rounds that matter.',
-                    sections: aboutChelnokSections,
-                    showContactButton: true,
-                  ),
-                ),
+                onTap: () => _openExternalUrl(context, privacyPolicyUrl),
               ),
             ],
           ),
@@ -152,34 +118,15 @@ class _TimerSettingsSheet extends ConsumerWidget {
     );
   }
 
-  void _openDocument(BuildContext sheetContext, Widget page) {
+  Future<void> _openExternalUrl(BuildContext sheetContext, String url) async {
     Navigator.pop(sheetContext);
-    Navigator.of(rootContext).push(
-      PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 260),
-        reverseTransitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (_, animation, secondaryAnimation) => page,
-        transitionsBuilder: (_, animation, secondaryAnimation, child) {
-          final curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
 
-          return FadeTransition(
-            opacity: curvedAnimation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.08, 0),
-                end: Offset.zero,
-              ).animate(curvedAnimation),
-              child: child,
-            ),
-          );
-        },
-      ),
-    );
+    final uri = Uri.tryParse(url);
+    if (uri == null || !await canLaunchUrl(uri)) return;
+
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
+
 }
 
 class _SettingsSectionLabel extends StatelessWidget {

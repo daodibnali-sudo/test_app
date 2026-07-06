@@ -9,6 +9,7 @@ import 'package:chelnok_boxing_timer/features/timer/providers/timer_provider.dar
 import 'package:chelnok_boxing_timer/features/timer/widgets/preset_actions_sheet.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/custom_preset_scroll_list.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/preset_scroll_list.dart';
+import 'package:chelnok_boxing_timer/core/monetization/preset_access_gate.dart';
 import 'package:chelnok_boxing_timer/router/open_timer.dart';
 
 import 'package:chelnok_boxing_timer/widgets/button.dart';
@@ -86,6 +87,11 @@ class HomePage extends ConsumerWidget {
                 selectedPreset: timer.selectedPreset,
                 extraPresets: timer.savedTimerPresets,
                 onPresetTap: (preset) async {
+                  final canStart = await PresetAccessGate.requestPresetStart(
+                    context,
+                  );
+                  if (!canStart || !context.mounted) return;
+
                   timerNotifier.applyPreset(preset);
                   timerNotifier.start();
                   await openTimerRunPage(context);
@@ -184,6 +190,11 @@ class HomePage extends ConsumerWidget {
                 presets: timer.customPresets,
                 selectedPreset: timer.selectedCustomPreset,
                 onPresetTap: (preset) async {
+                  final canStart = await PresetAccessGate.requestPresetStart(
+                    context,
+                  );
+                  if (!canStart || !context.mounted) return;
+
                   timerNotifier.startCustomPreset(preset);
                   timerNotifier.start();
                   await openTimerRunPage(context);
