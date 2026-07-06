@@ -3,12 +3,321 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Boxing Training Timer</title>
+    <title>Chelnok Boxing Timer</title>
+    <meta name="description" content="Chelnok Boxing Timer is a focused round timer for boxing, martial arts, and interval training.">
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0f1214;
+        color: #f5fafb;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 20% 0%, rgba(123, 228, 239, 0.16), transparent 34rem),
+          linear-gradient(135deg, #0f1214 0%, #151a1d 48%, #0b0d0f 100%);
+        min-height: 100vh;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 22px 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-decoration: none;
+      }
+
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border: 2px solid #7be4ef;
+        color: #7be4ef;
+        font-weight: 900;
+      }
+
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: #d4e0e3;
+        font-size: 0.95rem;
+      }
+
+      nav a {
+        text-decoration: none;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+        align-items: center;
+        gap: clamp(32px, 7vw, 88px);
+        padding: 54px 0 42px;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0;
+        font-size: clamp(3rem, 8vw, 6.5rem);
+        line-height: 0.92;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 620px;
+        margin: 24px 0 0;
+        color: #c5d2d6;
+        font-size: clamp(1.05rem, 2vw, 1.3rem);
+        line-height: 1.65;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 32px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border: 1px solid rgba(123, 228, 239, 0.42);
+        background: #7be4ef;
+        color: #071011;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .button.secondary {
+        background: rgba(255, 255, 255, 0.04);
+        color: #f5fafb;
+      }
+
+      .phone {
+        width: min(360px, 100%);
+        margin-left: auto;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: #080a0b;
+        padding: 18px;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
+      }
+
+      .screen {
+        min-height: 560px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(180deg, #151b1e 0%, #0b0e10 100%);
+        padding: 22px;
+      }
+
+      .app-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #9eb0b6;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+      }
+
+      .timer {
+        display: grid;
+        place-items: center;
+        aspect-ratio: 1;
+        margin: 54px auto 30px;
+        border: 8px solid #7be4ef;
+        border-radius: 999px;
+        color: #f5fafb;
+        text-align: center;
+      }
+
+      .timer strong {
+        display: block;
+        font-size: clamp(3.6rem, 18vw, 5.4rem);
+        line-height: 1;
+      }
+
+      .timer span {
+        display: block;
+        margin-top: 8px;
+        color: #9eb0b6;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .sets {
+        display: grid;
+        gap: 10px;
+      }
+
+      .set-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 14px;
+        color: #dce6e8;
+      }
+
+      .set-row b {
+        color: #7be4ef;
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        padding: 28px 0 54px;
+      }
+
+      .feature {
+        border-top: 1px solid rgba(123, 228, 239, 0.36);
+        padding-top: 18px;
+      }
+
+      .feature h2 {
+        margin: 0 0 8px;
+        font-size: 1.08rem;
+      }
+
+      .feature p {
+        margin: 0;
+        color: #b7c5c9;
+        line-height: 1.55;
+      }
+
+      footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 22px 0 34px;
+        color: #9eb0b6;
+        font-size: 0.92rem;
+      }
+
+      footer a {
+        color: #dce6e8;
+      }
+
+      @media (max-width: 780px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .hero {
+          grid-template-columns: 1fr;
+          padding-top: 34px;
+        }
+
+        .phone {
+          margin: 0 auto;
+        }
+
+        .screen {
+          min-height: 480px;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
-    <main>
-      <h1>Boxing Training Timer</h1>
-      <p>Authorized app ads file: <a href="./app-ads.txt">app-ads.txt</a></p>
-    </main>
+    <div class="shell">
+      <header>
+        <a class="brand" href="/">
+          <span class="mark">C</span>
+          <span>Chelnok</span>
+        </a>
+        <nav aria-label="Site navigation">
+          <a href="/privacy-policy/">Privacy Policy</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="hero-title">
+          <div>
+            <h1 id="hero-title">Boxing rounds without the clutter.</h1>
+            <p class="lead">Chelnok Boxing Timer is a focused interval timer for boxing, martial arts, sparring, bag work, and home conditioning.</p>
+            <div class="actions">
+              <a class="button" href="/privacy-policy/">Privacy Policy</a>
+              <a class="button secondary" href="mailto:chelnok.boxing@gmail.com">Contact</a>
+            </div>
+          </div>
+
+          <div class="phone" aria-label="Chelnok app timer preview">
+            <div class="screen">
+              <div class="app-top">
+                <span>Round 2 / 6</span>
+                <span>Work</span>
+              </div>
+              <div class="timer">
+                <div>
+                  <strong>02:17</strong>
+                  <span>Box</span>
+                </div>
+              </div>
+              <div class="sets">
+                <div class="set-row"><span>Round</span><b>3:00</b></div>
+                <div class="set-row"><span>Rest</span><b>1:00</b></div>
+                <div class="set-row"><span>Warning</span><b>0:10</b></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="features" aria-label="App features">
+          <article class="feature">
+            <h2>Training Presets</h2>
+            <p>Save round structures for bag work, shadow boxing, sparring, and conditioning.</p>
+          </article>
+          <article class="feature">
+            <h2>Clear Signals</h2>
+            <p>Bell sounds, voice prompts, vibration, and notifications keep sessions easy to follow.</p>
+          </article>
+          <article class="feature">
+            <h2>Built For Focus</h2>
+            <p>A dark, readable timer screen designed to stay useful while you train.</p>
+          </article>
+        </section>
+      </main>
+
+      <footer>
+        <span>© 2026 Chelnok Boxing Timer</span>
+        <span><a href="/privacy-policy/">Privacy Policy</a></span>
+      </footer>
+    </div>
   </body>
 </html>
