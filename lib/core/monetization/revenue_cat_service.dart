@@ -95,22 +95,26 @@ class RevenueCatService {
     if (!_isSupportedPlatform) return false;
     await initialize();
 
-    final result = await RevenueCatUI.presentPaywallIfNeeded(
-      RevenueCatConfig.proEntitlementId,
+    final result = await RevenueCatUI.presentPaywall(
       displayCloseButton: true,
     );
+    debugPrint('[RevenueCat] presentPaywall result: $result');
 
     return switch (result) {
-      PaywallResult.notPresented ||
       PaywallResult.purchased ||
       PaywallResult.restored => true,
-      PaywallResult.cancelled || PaywallResult.error => false,
+      PaywallResult.notPresented ||
+      PaywallResult.cancelled ||
+      PaywallResult.error => false,
     };
   }
 
   Future<void> presentCustomerCenter() async {
     if (!_isSupportedPlatform) return;
     await initialize();
+
+    await Purchases.invalidateCustomerInfoCache();
+    await Purchases.getCustomerInfo();
     await RevenueCatUI.presentCustomerCenter();
   }
 }

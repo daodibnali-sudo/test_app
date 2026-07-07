@@ -53,10 +53,15 @@ class SubscriptionNotifier extends Notifier<SubscriptionState> {
   @override
   SubscriptionState build() {
     _customerInfoListener = (customerInfo) {
-      state = state.copyWith(
-        customerInfo: customerInfo,
-        isLoading: false,
-        clearError: true,
+      unawaited(
+        Future<void>.microtask(() {
+          if (!ref.mounted) return;
+          state = state.copyWith(
+            customerInfo: customerInfo,
+            isLoading: false,
+            clearError: true,
+          );
+        }),
       );
     };
     Purchases.addCustomerInfoUpdateListener(_customerInfoListener);
@@ -69,6 +74,7 @@ class SubscriptionNotifier extends Notifier<SubscriptionState> {
   }
 
   Future<void> refresh() async {
+    if (!ref.mounted) return;
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
@@ -77,6 +83,7 @@ class SubscriptionNotifier extends Notifier<SubscriptionState> {
       final customerInfo = await service.getCustomerInfo();
       final offerings = await service.getOfferings();
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         customerInfo: customerInfo,
         offerings: offerings,
@@ -84,11 +91,13 @@ class SubscriptionNotifier extends Notifier<SubscriptionState> {
         clearError: true,
       );
     } on PlatformException catch (error) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: error.message ?? 'RevenueCat request failed.',
       );
     } catch (_) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'RevenueCat is unavailable right now.',
@@ -100,14 +109,17 @@ class SubscriptionNotifier extends Notifier<SubscriptionState> {
     try {
       final unlocked = await RevenueCatService.instance.presentProPaywall();
       await refresh();
+      if (!ref.mounted) return unlocked;
       return unlocked || state.isPro;
     } on PlatformException catch (error) {
+      if (!ref.mounted) return false;
       state = state.copyWith(
         isLoading: false,
         errorMessage: error.message ?? 'Unable to show the paywall.',
       );
       return false;
     } catch (_) {
+      if (!ref.mounted) return false;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Unable to show the paywall.',
@@ -117,10 +129,14 @@ class SubscriptionNotifier extends Notifier<SubscriptionState> {
   }
 
   Future<bool> restorePurchases() async {
+    if (!ref.mounted) return false;
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
       final customerInfo = await RevenueCatService.instance.restorePurchases();
+      if (!ref.mounted) {
+        return RevenueCatService.instance.isProCustomer(customerInfo);
+      }
       state = state.copyWith(
         customerInfo: customerInfo,
         isLoading: false,
@@ -128,12 +144,14 @@ class SubscriptionNotifier extends Notifier<SubscriptionState> {
       );
       return state.isPro;
     } on PlatformException catch (error) {
+      if (!ref.mounted) return false;
       state = state.copyWith(
         isLoading: false,
         errorMessage: error.message ?? 'Unable to restore purchases.',
       );
       return false;
     } catch (_) {
+      if (!ref.mounted) return false;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Unable to restore purchases.',
@@ -142,20 +160,25 @@ class SubscriptionNotifier extends Notifier<SubscriptionState> {
     }
   }
 
-  Future<void> presentCustomerCenter() async {
+  Future<bool> presentCustomerCenter() async {
     try {
       await RevenueCatService.instance.presentCustomerCenter();
       await refresh();
+      return true;
     } on PlatformException catch (error) {
+      if (!ref.mounted) return false;
       state = state.copyWith(
         isLoading: false,
         errorMessage: error.message ?? 'Unable to open Customer Center.',
       );
+      return false;
     } catch (_) {
+      if (!ref.mounted) return false;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Unable to open Customer Center.',
       );
+      return false;
     }
   }
 }

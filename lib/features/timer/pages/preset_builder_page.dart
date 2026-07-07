@@ -151,7 +151,7 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     );
   }
 
-  void _savePreset() {
+  Future<void> _savePreset() async {
     final preset = _buildPreset(showDuplicateAlert: true);
     if (preset == null) return;
 
@@ -159,6 +159,12 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     final editingIndex = widget.editingCustomPresetIndex;
 
     if (editingIndex == null) {
+      final saveAccess = await PresetAccessGate.requestCustomPresetSave(
+        context,
+        existingCustomPresetCount: ref.read(timerProvider).customPresets.length,
+      );
+      if (!saveAccess.allowed || !mounted) return;
+
       notifier.addCustomPreset(preset);
     } else {
       notifier.updateCustomPreset(editingIndex, preset);
@@ -171,16 +177,26 @@ class _PresetBuilderPageState extends ConsumerState<PresetBuilderPage> {
     final preset = _buildPreset(showDuplicateAlert: true);
     if (preset == null) return;
 
-    final canStart = await PresetAccessGate.requestPresetStart(context);
-    if (!canStart || !mounted) return;
-
     final notifier = ref.read(timerProvider.notifier);
     final editingIndex = widget.editingCustomPresetIndex;
+    var watchedAdForNewPreset = false;
 
     if (editingIndex == null) {
+      final saveAccess = await PresetAccessGate.requestCustomPresetSave(
+        context,
+        existingCustomPresetCount: ref.read(timerProvider).customPresets.length,
+      );
+      if (!saveAccess.allowed || !mounted) return;
+      watchedAdForNewPreset = saveAccess.watchedAd;
+
       notifier.addCustomPreset(preset);
     } else {
       notifier.updateCustomPreset(editingIndex, preset);
+    }
+
+    if (!watchedAdForNewPreset) {
+      final canStart = await PresetAccessGate.requestPresetStart(context);
+      if (!canStart || !mounted) return;
     }
 
     notifier

@@ -3,11 +3,13 @@ class RevenueCatConfig {
 
   static const apiKey = String.fromEnvironment(
     'REVENUECAT_API_KEY',
-    defaultValue: 'test_TrQmGqDrDgOQjzlHabDanzHqJVD',
+    defaultValue: 'goog_zUgKCSPiruwRDINZdOcfWTMCgBx',
   );
 
-  static const proEntitlementId = 'chelnok Pro';
+  static bool get usesTestStoreApiKey => apiKey.startsWith('test_');
+
+  static const proEntitlementId = 'pro';
 
   static const lifetimeProductId = 'lifetime';
-  static const yearlyProductId = 'yearly';
+  static const subscriptionProductId = 'pro_v1:pro-early';
 }

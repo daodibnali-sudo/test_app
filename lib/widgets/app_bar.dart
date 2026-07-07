@@ -1,22 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:chelnok_boxing_timer/core/monetization/subscription_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/widgets/timer_settings_sheet.dart';
 import 'package:chelnok_boxing_timer/router/open_timer.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_colors.dart';
 import 'package:chelnok_boxing_timer/shared/theme/app_fonts.dart';
 
-class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
+class MyAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const MyAppBar({super.key});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isPro = ref.watch(
+      subscriptionProvider.select((subscription) => subscription.isPro),
+    );
+
     return AppBar(
       backgroundColor: AppColors.blackBg,
-      leading: IconButton(
-        onPressed: () => _showHomeMenu(context),
-        icon: Icon(Icons.menu, color: AppColors.textPrimary),
+      leadingWidth: isPro ? 96 : null,
+      leading: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: () => _showHomeMenu(context),
+            icon: Icon(Icons.menu, color: AppColors.textPrimary),
+          ),
+          if (isPro) const _ProBadge(),
+        ],
       ),
 
       bottom: PreferredSize(
@@ -76,6 +89,31 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ProBadge extends StatelessWidget {
+  const _ProBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 19,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        color: AppColors.cyanLight,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        'PRO',
+        style: AppTextStyles.label.copyWith(
+          color: AppColors.blackBg,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
     );
   }
 }

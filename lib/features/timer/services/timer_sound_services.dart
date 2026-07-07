@@ -163,16 +163,22 @@ class TimerSoundService {
       _configurePlayer(_announcementPlayer, _beepSource),
       _configurePlayer(_beepPlayer, _beepSource),
     ]);
-    await _tts.awaitSpeakCompletion(false);
+    await _tts.awaitSpeakCompletion(true);
+    await _tts.setVolume(1);
+    await _tts.setSpeechRate(0.48);
+    await _tts.setPitch(1);
     if (defaultTargetPlatform == TargetPlatform.android) {
       await _tts.setQueueMode(0);
+      await _tts.setAudioAttributesForNavigation();
     }
     await _tts.setLanguage(_ttsLanguage);
+    _logTts('configured language=$_ttsLanguage');
   }
 
   Future<String> _availableTtsLanguage(String languageCode) async {
     try {
       final isAvailable = await _tts.isLanguageAvailable(languageCode);
+      _logTts('language $languageCode available=$isAvailable');
       if (isAvailable == true) return languageCode;
     } catch (_) {
       // Fall through to the stable English default if the platform cannot
@@ -192,7 +198,9 @@ class TimerSoundService {
     await _tts.stop();
     if (_isDisposed) return;
 
-    await _tts.speak(text, focus: true);
+    _logTts('speak "$text" language=$_ttsLanguage');
+    final result = await _tts.speak(text, focus: true);
+    _logTts('speak result=$result');
   }
 
   Future<void> _waitForCancellation(int generation) {
@@ -247,5 +255,10 @@ class TimerSoundService {
     await _finishPlayer.dispose();
     await _announcementPlayer.dispose();
     await _beepPlayer.dispose();
+  }
+
+  void _logTts(String message) {
+    if (!kDebugMode) return;
+    debugPrint('[TimerSoundService/TTS] $message');
   }
 }

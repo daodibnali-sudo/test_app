@@ -118,7 +118,7 @@ class _TimerSettingsSheet extends ConsumerWidget {
                     : subscription.isLoading
                     ? 'Checking Pro status...'
                     : 'Upgrade to Pro',
-                onTap: subscription.isPro || subscription.isLoading
+                onTap: subscription.isPro
                     ? () {}
                     : () async {
                         Navigator.pop(context);
@@ -155,7 +155,16 @@ class _TimerSettingsSheet extends ConsumerWidget {
                   title: 'Manage subscription',
                   onTap: () async {
                     Navigator.pop(context);
-                    await subscriptionNotifier.presentCustomerCenter();
+                    final opened = await subscriptionNotifier
+                        .presentCustomerCenter();
+                    if (!rootContext.mounted) return;
+                    if (!opened) {
+                      _showSubscriptionMessage(
+                        rootContext,
+                        ref.read(subscriptionProvider).errorMessage ??
+                            'Unable to open Customer Center.',
+                      );
+                    }
                   },
                 ),
               if (subscription.errorMessage != null) ...[

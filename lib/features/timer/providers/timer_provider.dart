@@ -231,7 +231,7 @@ class TimerNotifier extends Notifier<TimerState> {
       case 10000:
         if (_tenSecAnnouncementFired || !state.tenSecAnnouncement) return;
         _tenSecAnnouncementFired = true;
-        unawaited(_sounds.playKnockAnnouncement());
+        unawaited(_sounds.playTimedBeepAnnouncement(_tts('tenSecondsLeft')));
         return;
     }
   }
@@ -281,6 +281,11 @@ class TimerNotifier extends Notifier<TimerState> {
     state = state.copyWith(keepScreenAwake: value);
   }
 
+  void testVoiceAnnouncement() {
+    if (!state.allowSound) return;
+    unawaited(_sounds.speak(_tts('getReady')));
+  }
+
   void setLanguage(AppLanguage language) {
     _language = language;
     unawaited(_sounds.setLanguage(language.ttsLanguageCode));
@@ -294,6 +299,7 @@ class TimerNotifier extends Notifier<TimerState> {
         'rest': 'Отдых',
         'minuteLeft': 'Осталась минута',
         'thirtySecondsLeft': 'Осталось тридцать секунд',
+        'tenSecondsLeft': 'Осталось десять секунд',
         'goodWork': 'Хорошая работа',
       },
       AppLanguage.czech => const {
@@ -302,6 +308,7 @@ class TimerNotifier extends Notifier<TimerState> {
         'rest': 'Pauza',
         'minuteLeft': 'Zbývá minuta',
         'thirtySecondsLeft': 'Zbývá třicet sekund',
+        'tenSecondsLeft': 'Zbývá deset sekund',
         'goodWork': 'Dobrá práce',
       },
       AppLanguage.english => const {
@@ -310,6 +317,7 @@ class TimerNotifier extends Notifier<TimerState> {
         'rest': 'Rest',
         'minuteLeft': 'Minute left',
         'thirtySecondsLeft': 'Thirty seconds left',
+        'tenSecondsLeft': 'Ten seconds left',
         'goodWork': 'Good work',
       },
     };
@@ -736,10 +744,10 @@ class TimerNotifier extends Notifier<TimerState> {
     if (state.allowSound) {
       await _sounds.playFinishThreeBells();
       if (!_isCurrentRun(generation)) return;
-    }
 
-    await _sounds.speak(_tts('goodWork'));
-    if (!_isCurrentRun(generation)) return;
+      await _sounds.speak(_tts('goodWork'));
+      if (!_isCurrentRun(generation)) return;
+    }
 
     _timer?.cancel();
     _timer = null;

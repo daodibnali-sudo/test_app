@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:chelnok_boxing_timer/core/ads/interstitial_ad_service.dart';
+import 'package:chelnok_boxing_timer/core/monetization/revenue_cat_service.dart';
 import 'package:chelnok_boxing_timer/features/settings/localization/app_strings.dart';
 import 'package:chelnok_boxing_timer/features/settings/providers/app_settings_provider.dart';
 import 'package:chelnok_boxing_timer/features/timer/formatters/timer_formatter.dart';
@@ -65,11 +66,23 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
     }
   }
 
-  void _handleDone() {
+  Future<void> _handleDone() async {
     if (_donePressed) return;
 
     _donePressed = true;
     _stopRunOnce();
+
+    var isPro = false;
+    try {
+      isPro = await RevenueCatService.instance.isProActive();
+    } catch (_) {
+      isPro = false;
+    }
+
+    if (isPro) {
+      _openTimerSetPage();
+      return;
+    }
 
     InterstitialAdService.instance.showInterstitialAd(
       onComplete: _openTimerSetPage,
@@ -251,7 +264,7 @@ class _TimerRunPageState extends ConsumerState<TimerRunPage> {
               const SizedBox(height: 24),
               const _ProgressSection(),
               const Spacer(),
-              _RunActions(onDone: _handleDone),
+              _RunActions(onDone: () => unawaited(_handleDone())),
               const SizedBox(height: 50),
             ],
           ),

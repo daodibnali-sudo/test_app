@@ -1,7 +1,7 @@
 name: chelnok_boxing_timer
 description: "A professional boxing timer for fighters with customizable rounds, sound announcements, and workout tracking."
 publish_to: 'none'
-version: 1.0.0+9
+version: 1.0.0+10
 
 
 environment:
